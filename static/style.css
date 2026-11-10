@@ -1,7 +1,7 @@
 /* Riddle-da-Fiddle test page. Plain on purpose: the real design comes with your own assets. */
 
 :root {
-  --bg: #ff781f;
+  --bg: #2b1d15;                      /* dark forest brown: what shows behind phone toolbars and on overscroll */
   --ink: #2b1608;                     /* dark text straight on the orange */
   --panel: rgba(43, 20, 6, 0.8);      /* dark see-through brown so cream text stays readable */
   --panel-border: rgba(255, 255, 255, 0.14);
@@ -391,3 +391,7 @@ input { cursor: text; }
 
 /* End game button: same gap above and below */
 #host-game-controls { margin: 0 0 16px; }
+
+/* base colour behind everything (also the iPhone toolbar and overscroll areas) */
+html { background: var(--bg); }
+body { background: transparent; }   /* let the forest (behind the body) show through */

@@ -246,7 +246,7 @@ function renderGame() {
       <div class="player${isCurrent ? " current" : ""}${p.eliminated ? " out" : ""}">
         <div class="name">${esc(seat.name)}</div>
         <div>${badges(seat)}</div>
-        <div class="meta">${p.eliminated ? "Out" : `${p.card_count} card${p.card_count === 1 ? "" : "s"}`}${isCurrent ? " · their turn" : ""}${waitingJokers ? " · choosing jokers" : ""}</div>
+        <div class="meta">${p.eliminated ? "Out" : `${p.card_count} card${p.card_count === 1 ? "" : "s"}`}${isCurrent ? (seat.id === state.you ? " · your turn" : " · their turn") : ""}${waitingJokers ? " · choosing jokers" : ""}</div>
         ${p.eliminated ? "" : `<div class="mini-backs" data-pid="${esc(seat.id)}">${Array.from({ length: Math.min(p.card_count, 20) },
           (_, i) => `<span class="mini-back${deal && i >= (deal.shown[seat.id] ?? 0) ? " pending" : ""}"></span>`).join("")}</div>`}
         ${hostButtons}
