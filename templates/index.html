@@ -89,16 +89,23 @@
 
       <div id="last-round" class="panel hidden"></div>
 
-      <div class="panel">
-        <h2>Log</h2>
-        <ol id="log" class="log"></ol>
-      </div>
-
       <div id="host-game-controls" class="hidden center">
         <button id="end-game-btn" class="btn ghost small" type="button">End game &amp; return to lobby</button>
       </div>
     </section>
+
+    <!-- Log & chat (lobby and game) -->
+    <section id="chat-panel" class="panel hidden">
+      <h2>Log &amp; chat</h2>
+      <ol id="log" class="log"></ol>
+      <form id="chat-form" class="row chat-form" autocomplete="off">
+        <input id="chat-input" maxlength="200" placeholder="Say something…" aria-label="Chat message">
+        <button class="btn primary" type="submit">Send</button>
+      </form>
+    </section>
   </main>
+
+  <button id="chat-bubble" class="chat-bubble hidden" type="button"></button>
 
   <!-- Round results: shown after every fiddle/riddle until everyone's ready (or the timer ends) -->
   <div id="results" class="results-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="results-title">

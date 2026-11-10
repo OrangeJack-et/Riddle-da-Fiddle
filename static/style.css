@@ -1,10 +1,11 @@
 /* Riddle-da-Fiddle test page. Plain on purpose: the real design comes with your own assets. */
 
 :root {
-  --felt: #1f5135;
-  --felt-dark: #163c27;
-  --panel: rgba(0, 0, 0, 0.25);
-  --panel-border: rgba(255, 255, 255, 0.12);
+  --bg: #ff781f;
+  --ink: #2b1608;                     /* dark text straight on the orange */
+  --panel: rgba(43, 20, 6, 0.8);      /* dark see-through brown so cream text stays readable */
+  --panel-border: rgba(255, 255, 255, 0.14);
+  --highlight: #fff3dc;               /* turn / selected / matching cards (gold is too close to orange) */
   --text: #f4efe3;
   --muted: #bfcbbf;
   --accent: #e9c46a;
@@ -21,7 +22,7 @@ body {
   min-height: 100vh;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
-  background: radial-gradient(ellipse at top, var(--felt), var(--felt-dark));
+  background: var(--bg);
 }
 
 main { max-width: 960px; margin: 0 auto; padding: 0 16px 48px; }
@@ -30,7 +31,8 @@ main { max-width: 960px; margin: 0 auto; padding: 0 16px 48px; }
   display: flex; align-items: center; justify-content: space-between;
   max-width: 960px; margin: 0 auto; padding: 16px;
 }
-.topbar h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
+.topbar h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; color: var(--ink); }
+#leave-btn, #host-game-controls .btn { color: var(--ink); border-color: rgba(43, 22, 8, 0.5); }
 
 h2 { font-size: 1rem; margin: 0 0 10px; }
 
@@ -71,7 +73,7 @@ input, select {
 .btn.ghost { background: transparent; }
 .btn.small { padding: 4px 10px; font-size: 0.85rem; }
 .btn.wide { width: 100%; }
-.btn.selected { outline: 3px solid var(--accent); }
+.btn.selected { outline: 3px solid var(--highlight); }
 
 .divider { display: flex; align-items: center; gap: 8px; margin: 16px 0; color: var(--muted); font-size: 0.9rem; }
 .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--panel-border); }
@@ -101,7 +103,7 @@ input, select {
 .player {
   background: var(--panel); border: 2px solid transparent; border-radius: var(--radius); padding: 10px;
 }
-.player.current { border-color: var(--accent); }
+.player.current { border-color: var(--highlight); }
 .player.out { opacity: 0.45; }
 .player .name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .player .meta { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
@@ -148,11 +150,11 @@ input, select {
 /* round results screen */
 .results-overlay {
   position: fixed; inset: 0; z-index: 10; overflow-y: auto;
-  background: rgba(8, 24, 16, 0.96); padding: 24px 16px;   /* nearly opaque: the new hand stays hidden */
+  background: rgba(30, 14, 4, 0.96); padding: 24px 16px;   /* nearly opaque: the new hand stays hidden */
 }
 .results-box {
   max-width: 640px; margin: 0 auto; padding: 20px;
-  background: radial-gradient(ellipse at top, var(--felt), var(--felt-dark));
+  background: #3a1e0b;
   border: 1px solid var(--panel-border); border-radius: var(--radius);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   animation: pop-in 0.25s ease-out;
@@ -162,12 +164,12 @@ input, select {
 .results-verdict { font-size: 1.05rem; margin: 0 0 8px; }
 .results-key { font-size: 0.85rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .key { display: inline-block; width: 14px; height: 14px; border-radius: 3px; background: #fff; }
-.key.match { outline: 3px solid var(--accent); }
+.key.match { outline: 3px solid var(--highlight); }
 .key.joker { outline: 3px solid #b48ae0; margin-left: 10px; }
 .result-row { padding: 10px 0; border-top: 1px solid var(--panel-border); }
 .result-who { margin-bottom: 6px; }
 .result-row .cards { display: flex; flex-wrap: wrap; gap: 4px; }
-.card.match { outline: 3px solid var(--accent); outline-offset: -1px; }
+.card.match { outline: 3px solid var(--highlight); outline-offset: -1px; }
 .card.joker { outline: 3px solid #b48ae0; outline-offset: -1px; }
 .card.dim { opacity: 0.45; }
 .change { font-weight: 700; margin-left: 6px; }
@@ -180,6 +182,16 @@ input, select {
 
 .log { margin: 0; padding-left: 20px; max-height: 220px; overflow-y: auto; font-size: 0.9rem; }
 .log li { margin: 2px 0; }
+.log li.chat { color: #fff; list-style: none; margin-left: -20px; padding: 2px 6px; background: rgba(255, 255, 255, 0.08); border-radius: 6px; overflow-wrap: anywhere; }
+.chat-form { margin-top: 10px; flex-wrap: nowrap; }
+.chat-form input { flex: 1; min-width: 0; }
+.chat-bubble {
+  position: fixed; left: 50%; bottom: 76px; transform: translateX(-50%); z-index: 30;
+  max-width: min(420px, calc(100% - 32px)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font: inherit; text-align: left; cursor: pointer;
+  background: #fff3dc; color: var(--ink); border: 0; border-radius: 20px; padding: 10px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); animation: pop-in 0.2s ease-out;
+}
 
 .toast {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);

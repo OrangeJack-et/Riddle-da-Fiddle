@@ -30,6 +30,9 @@ from riddle_da_fiddle_engine import (
 MIN_PLAYERS = 2
 MAX_PLAYERS = 8
 MAX_NAME_LENGTH = 16
+MAX_CHAT_LENGTH = 200
+CHAT_BURST = 5                                                      # messages one player can send...
+CHAT_WINDOW = 5                                                     # ...in this many seconds
 DISCONNECT_GRACE = float(os.environ.get("DISCONNECT_GRACE", 30))   # seconds before a bot takes over
 BOT_DELAY = float(os.environ.get("BOT_DELAY", 1.5))                # seconds a bot "thinks"
 TAKEOVER_LEVEL = "pro"                                              # bot level that fills in for humans
@@ -69,6 +72,7 @@ class Seat:
         self.taken_over = False             # human seat currently played by a bot
         self.disconnect_deadline = None     # time.time() when a bot will take over
         self.disconnect_generation = 0      # bumps on every connect/disconnect to cancel old timers
+        self.chat_times = []                # when this seat last sent chat (spam limit)
 
     @property
     def bot_controlled(self):
@@ -540,6 +544,23 @@ def leave(data):
         events = [{"type": "player_left", "player": seat.id, "name": seat.name}]
         broadcast(room, events + check_only_bots_left(room))
         schedule_bots(room)
+
+
+@handler("chat")
+def chat(data):
+    room, seat = caller()
+    text = " ".join(str(data.get("text") or "").split())[:MAX_CHAT_LENGTH]
+    if not text:
+        return
+    now = time.time()
+    seat.chat_times = [t for t in seat.chat_times if now - t < CHAT_WINDOW]
+    if len(seat.chat_times) >= CHAT_BURST:
+        raise UserError("Slow down a bit!")
+    seat.chat_times.append(now)
+    message = {"player": seat.id, "name": seat.name, "text": text}
+    for s in room.seats:
+        if s.sid:
+            socketio.emit("chat", message, to=s.sid)
 
 
 @handler("add_bot")

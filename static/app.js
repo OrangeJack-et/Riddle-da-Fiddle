@@ -108,6 +108,28 @@ socket.on("room_state", (incoming) => {
 
 socket.on("error_msg", (msg) => toast(msg.message));
 
+socket.on("chat", (msg) => {
+  const li = document.createElement("li");
+  li.className = "chat";
+  const who = document.createElement("b");
+  who.textContent = `${msg.name}: `;
+  li.append(who, document.createTextNode(msg.text));
+  addLogLine(li);
+  if (msg.player !== state?.you) chatBubble(msg);
+});
+
+// Pop-up for new chat, unless the log is already on screen (and not covered by the results).
+function chatBubble(msg) {
+  const rect = $("chat-form").getBoundingClientRect();   // "visible" = the chat box itself is on screen
+  const logVisible = rect.top >= 0 && rect.bottom <= innerHeight && !state?.results;
+  if (logVisible) return;
+  const el = $("chat-bubble");
+  el.textContent = `💬 ${msg.name}: ${msg.text}`;
+  el.classList.remove("hidden");
+  clearTimeout(chatBubble.timer);
+  chatBubble.timer = setTimeout(() => el.classList.add("hidden"), 4000);
+}
+
 socket.on("removed", (msg) => {
   cancelDeal();
   saved.clear("rdf-seat");
@@ -150,6 +172,10 @@ function logEvent(event) {
   if (!text) return;
   const li = document.createElement("li");
   li.textContent = text;
+  addLogLine(li);
+}
+
+function addLogLine(li) {
   const log = $("log");
   log.appendChild(li);
   while (log.children.length > 200) log.removeChild(log.firstChild);
@@ -161,6 +187,8 @@ function logEvent(event) {
 function show(screen) {
   for (const name of ["home", "lobby", "game"]) $(`screen-${name}`).classList.toggle("hidden", name !== screen);
   $("leave-btn").classList.toggle("hidden", screen === "home");
+  $("chat-panel").classList.toggle("hidden", screen === "home");
+  $("chat-panel").classList.toggle("narrow", screen === "lobby");
 }
 
 function render() {
@@ -496,6 +524,20 @@ $("leave-btn").onclick = () => {
 $("copy-link-btn").onclick = async () => {
   const link = `${location.origin}/?code=${state.code}`;
   try { await navigator.clipboard.writeText(link); toast("Invite link copied"); } catch { toast(link); }
+};
+
+$("chat-form").onsubmit = (e) => {
+  e.preventDefault();
+  const text = $("chat-input").value.trim();
+  if (!text) return;
+  send("chat", { text });
+  $("chat-input").value = "";
+};
+$("chat-bubble").onclick = () => {
+  $("chat-bubble").classList.add("hidden");
+  if (state?.results) return;   // log is behind the results screen
+  $("chat-panel").scrollIntoView({ behavior: "smooth", block: "center" });
+  $("chat-input").focus({ preventScroll: true });
 };
 
 $("add-bot-btn").onclick = () => send("add_bot", { level: $("bot-level").value });
