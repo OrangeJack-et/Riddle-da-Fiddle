@@ -41,9 +41,9 @@ function nameOf(id) { return seatOf(id)?.name ?? "?"; }
 function cap(text) { return text.charAt(0).toUpperCase() + text.slice(1); }
 
 function cardSrc(card) {
-  if (card.suit === "joker") return `/static/cards/${card.rank === 1 ? "black" : "red"}_joker.svg`;
+  if (card.suit === "joker") return `/static/cards/${card.rank === 1 ? "black" : "red"}_joker.png`;
   const rank = { 1: "ace", 11: "jack", 12: "queen", 13: "king" }[card.rank] ?? card.rank;
-  return `/static/cards/${rank}_of_${card.suit}.svg`;
+  return `/static/cards/${rank}_of_${card.suit}.png`;
 }
 
 function cardLabel(card) {

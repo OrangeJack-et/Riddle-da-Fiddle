@@ -11,7 +11,7 @@
   --accent: #e9c46a;
   --primary: #b8430a;                 /* dark orange: Create game, Start, Guess, Ready, Send… */
   --danger: #c4453c;
-  --card-w: 72px;
+  --card-w: 100px;                    /* pixel cards are 50x75: whole-number scales keep pixels even */
   --radius: 12px;
 }
 
@@ -112,7 +112,7 @@ input, select {
 .player .meta { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
 .player .btn { margin-top: 6px; }
 .mini-backs { display: flex; margin-top: 6px; flex-wrap: wrap; gap: 2px; }
-.mini-back { width: 12px; height: 17px; border-radius: 2px; background: repeating-linear-gradient(45deg, #7b2d26, #7b2d26 3px, #a33c33 3px, #a33c33 6px); border: 1px solid #f4efe3; }
+.mini-back { width: 12px; height: 18px; border-radius: 2px; background: #ffc9a3; border: 2px solid #fff9ef; }
 
 .table { text-align: center; }
 .current-guess { font-size: 1.8rem; font-weight: 800; margin: 6px 0; }
@@ -132,19 +132,24 @@ input, select {
 
 /* cards */
 .hand { display: flex; flex-wrap: wrap; gap: 8px; }
-.card { width: var(--card-w); aspect-ratio: 5 / 7; border-radius: 6px; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); display: block; }
-.card.small { --card-w: 46px; }
+.card {
+  width: var(--card-w); aspect-ratio: 2 / 3; display: block;
+  image-rendering: pixelated;                       /* keep the pixel art crisp when scaled up */
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+}
+.card.small { --card-w: 50px; }
 .reveal-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
 .reveal-row .who { width: 110px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .reveal-row .cards { display: flex; flex-wrap: wrap; gap: 4px; }
 
 /* dealing animation */
 .deck, .fly-card {
-  aspect-ratio: 5 / 7; border-radius: 4px; border: 2px solid #f4efe3;
-  background: repeating-linear-gradient(45deg, #7b2d26, #7b2d26 4px, #a33c33 4px, #a33c33 8px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  aspect-ratio: 2 / 3;
+  background: url("cards/back.png") center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
 }
-.deck { width: 46px; margin: 8px auto; }
+.deck { width: 50px; margin: 8px auto; }
 .fly-card { position: fixed; z-index: 20; pointer-events: none; transform-origin: 0 0; }
 .card.undealt, .mini-back.pending { visibility: hidden; }
 .card.dealt-in { animation: flip-in 0.25s ease-out; }
@@ -167,13 +172,13 @@ input, select {
 .results-verdict { font-size: 1.05rem; margin: 0 0 8px; }
 .results-key { font-size: 0.85rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .key { display: inline-block; width: 14px; height: 14px; border-radius: 3px; background: #fff; }
-.key.match { outline: 3px solid var(--highlight); }
+.key.match { outline: 3px solid var(--accent); }
 .key.joker { outline: 3px solid #b48ae0; margin-left: 10px; }
 .result-row { padding: 10px 0; border-top: 1px solid var(--panel-border); }
 .result-who { margin-bottom: 6px; }
 .result-row .cards { display: flex; flex-wrap: wrap; gap: 4px; }
-.card.match { outline: 3px solid var(--highlight); outline-offset: -1px; }
-.card.joker { outline: 3px solid #b48ae0; outline-offset: -1px; }
+.card.match { outline: 3px solid var(--accent); outline-offset: 1px; }
+.card.joker { outline: 3px solid #b48ae0; outline-offset: 1px; }
 .card.dim { opacity: 0.45; }
 .change { font-weight: 700; margin-left: 6px; }
 .change.minus { color: #ff8a80; }
@@ -218,7 +223,7 @@ input, select {
 .rules-table th { text-align: left; padding: 4px 12px 4px 0; }
 .rules-table td { padding: 4px 12px 4px 0; }
 .rule-cards { white-space: nowrap; }
-.rule-cards img, .rule-with-card img { width: 34px; aspect-ratio: 5 / 7; border-radius: 3px; background: #fff; margin-right: 4px; vertical-align: middle; }
+.rule-cards img, .rule-with-card img { width: 50px; aspect-ratio: 2 / 3; image-rendering: pixelated; margin-right: 4px; vertical-align: middle; flex: none; }
 .rule-with-card { list-style: none; margin-left: -20px; display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
 .rules-moves dt { font-weight: 800; font-size: 1.05rem; margin-top: 10px; color: #fff; }
 .rules-moves dt.fiddle { color: #ff8a80; }
@@ -240,7 +245,7 @@ li.rules-example { margin-left: -20px; }
 }
 
 @media (max-width: 520px) {
-  :root { --card-w: 54px; }
+  :root { --card-w: 50px; }
   .room-code { font-size: 2rem; }
   .current-guess { font-size: 1.4rem; }
 }

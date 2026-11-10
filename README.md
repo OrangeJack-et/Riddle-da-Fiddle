@@ -15,7 +15,8 @@ The **multiplayer web version** works: lobbies with codes, 2–8 players, bots, 
 | `bots.py` | Computer players: **Noob** (mostly random), **Pro** (plays the odds), **Hacker** (cheats: sees every hand). |
 | `server.py` | Web server (Flask-SocketIO): lobbies, host controls, bots, disconnect handling. |
 | `templates/index.html`, `static/app.js`, `static/style.css` | The web page. |
-| `static/cards/` | Card images, named like `ace_of_spades.svg` and `red_joker.svg`. Replace them with your own art using the same names. |
+| `static/cards/` | Pixel card images (50×75 PNG), named like `ace_of_spades.png`, `red_joker.png`, plus `back.png`. Replace them with your own art using the same names. |
+| `assets_incoming/` | Raw downloaded asset packs (git-ignored: some licences don't allow sharing the originals). |
 | `play_engine_in_terminal.py` | Plays the web-ready engine in the terminal, for testing it without the website. |
 | `requirements.txt`, `render.yaml` | What the server needs, and how Render should run it. |
 
@@ -54,7 +55,7 @@ python play_engine_in_terminal.py
 
 Music: Vivaldi, *Winter* (1st movement), performed by John Harrison with the Wichita State University Chamber Players, licensed [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Vivaldi_-_Four_Seasons_4_Winter_mvt_1_Allegro_non_molto_-_John_Harrison_violin.oga). Files: `static/audio/vivaldi-winter.oga` (original) and `vivaldi-winter.mp3` (Wikimedia's MP3 copy, same licence).
 
-Card images: public-domain vector playing cards, via [hayeah/playing-cards-assets](https://github.com/hayeah/playing-cards-assets) (originally from the *vector-playing-cards* project).
+Card art: [Pixel Cards by Jfred](https://jfredd.itch.io/pixel-cards) (CC0). The two jokers use the violin from the [16 Pixel Art Musical Instruments pack by K4nnx](https://k4nnx.itch.io/16-pixel-art-musical-instruments-sprites-pack-32x32) (free for commercial use; the original pack isn't redistributed here).
 
 ## Rules
 

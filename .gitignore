@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 .claude/
+
+# Raw downloaded asset packs: some licences forbid sharing the originals, so never commit them
+assets_incoming/
