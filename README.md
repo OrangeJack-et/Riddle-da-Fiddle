@@ -1,6 +1,6 @@
 # Riddle-da-Fiddle 🎻
 
-*A silly little bluffing card game.*
+*A silly little fiddly card game.*
 
 ## Status
 
@@ -29,7 +29,7 @@ Every card belongs to one or more **types**:
 | Face   | Jack, Queen, King |
 
 - **Aces are wild**: they count as Lower, Middle *and* Face.
-- **One joker is wild** (counts as all three types); **the other joker counts as nothing**.
+- **Jokes functionality yet to be added.**.
 
 ### Setup
 
