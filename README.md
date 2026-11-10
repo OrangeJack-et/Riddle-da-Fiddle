@@ -57,7 +57,7 @@ Music: Vivaldi, *Winter* (1st movement), performed by John Harrison with the Wic
 
 Card art: [Pixel Cards by Jfred](https://jfredd.itch.io/pixel-cards) (CC0). The two jokers use the violin from the [16 Pixel Art Musical Instruments pack by K4nnx](https://k4nnx.itch.io/16-pixel-art-musical-instruments-sprites-pack-32x32) (free for commercial use; the original pack isn't redistributed here).
 
-Frames and buttons: [Pixel Art Fantasy UI Pack by Quintino Pixels](https://quintino-pixels.itch.io/pixel-art-ui-elements) (CC0), cut into `static/ui/` (button colours recoloured from the teal one). Background: [Forest Background by Luis Zuno (ansimuz)](https://opengameart.org/content/forest-background) (CC0), the four layers in `static/bg/`, drifting sideways at different speeds. Font: [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (Open Font License), loaded from Google Fonts.
+Frames and buttons: [Pixel Art Fantasy UI Pack by Quintino Pixels](https://quintino-pixels.itch.io/pixel-art-ui-elements) (CC0), cut into `static/ui/` (button colours recoloured from the teal one). Background: [Forest Background by Luis Zuno (ansimuz)](https://opengameart.org/content/forest-background) (CC0), the four layers in `static/bg/`, drifting sideways at different speeds. Icons (speaker, book) and mouse cursor: [1-bit Pixel Icons by Nikoichu](https://nikoichu.itch.io/pixel-icons) (CC0). Font: [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (Open Font License), loaded from Google Fonts.
 
 ## Rules
 

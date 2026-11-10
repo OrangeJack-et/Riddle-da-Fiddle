@@ -378,3 +378,16 @@ button, input, select { font-variant-ligatures: none; }
 
 /* text sitting straight on the forest */
 .topbar h1 { color: #fff4e2; text-shadow: 2px 2px 0 #2b1608; }
+
+/* pixel icons (Nikoichu, CC0) in the top-bar buttons */
+.px-icon { width: 32px; height: 32px; image-rendering: pixelated; display: block; }
+.icon-btn { display: inline-flex; align-items: center; gap: 4px; padding: 0 4px; }
+.icon-btn .px-icon { margin: -6px 0; }   /* keep the button the same height as Leave */
+
+/* pixel mouse cursor: arrow everywhere, pointing hand on things you can click */
+html, body { cursor: url("ui/cursor-arrow.png") 6 2, auto; }
+button:not(:disabled), a, select, .chat-bubble, [data-remove], [data-tobot] { cursor: url("ui/cursor-hand.png") 12 1, pointer; }
+input { cursor: text; }
+
+/* End game button: same gap above and below */
+#host-game-controls { margin: 0 0 16px; }

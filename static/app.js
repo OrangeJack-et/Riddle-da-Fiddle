@@ -548,7 +548,7 @@ music.addEventListener("timeupdate", () => { if (music.currentTime >= MUSIC_END)
 let musicOn = saved.get("rdf-music") !== false;
 function updateMusicButton() {
   const label = musicOn ? "Mute music" : "Play music";
-  $("music-btn").textContent = musicOn ? "🔊" : "🔇";
+  $("music-icon").src = `/static/ui/icon-sound-${musicOn ? "on" : "off"}.png`;
   $("music-btn").setAttribute("aria-label", label);
   $("music-btn").title = label;
 }
