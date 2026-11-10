@@ -74,6 +74,8 @@ Each player starts with **6 cards**. Your card count is also your number of live
 
 At the start of every round the deck is reshuffled and each player is dealt as many cards as their current card count. You can see only your own hand.
 
+Cards are dealt one at a time round the table. If the deck runs out (possible with 7–8 players near the 8-card maximum), the players with the most cards are the ones left a card or two short.
+
 ### Guessing
 
 Players take turns around the table. The first player makes a **guess**: a card type and a quantity, e.g. *"Middle 4"*. This is a claim that **across everyone's hands combined there are at least 4 Middle cards**.
@@ -85,10 +87,22 @@ On your turn you must do one of three things:
    - if there are **at least** that many, the guess was true, and **you lose 1 card**;
    - otherwise the guesser **loses 1 card**.
 3. **Riddle**: you think the previous guess is *exactly* right. All hands are revealed and counted:
-   - if the count is **exactly** the guessed number, **you gain 1 card**;
+   - if the count is **exactly** the guessed number, **you gain 1 card** (up to a **maximum of 8**: if you already have 8, you stay on 8);
    - otherwise **you lose 2 cards**.
 
 A fiddle or riddle ends the round. Cards are redealt and a new round begins.
+
+### Who starts
+
+The first round starts with the first player. After that, **whoever lost the last round starts the next one**:
+
+- **Fiddle:** whoever lost a card (the fiddler if the guess was true, the guesser if it was false).
+- **Riddle correct:** the guesser who got riddled.
+- **Riddle wrong:** the riddler, who lost 2 cards.
+
+If that player was just knocked out, the next player still in the game (going round the table) starts.
+
+*(The desktop version predates this rule: there, the first player always starts.)*
 
 ### Winning
 

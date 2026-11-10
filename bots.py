@@ -18,7 +18,7 @@ import random
 from math import comb
 
 from riddle_da_fiddle_engine import (
-    CARD_TYPES, TYPE_RANK, SUITS, PHASE_GUESSING, PHASE_CHOOSING_JOKERS, card_types, is_joker,
+    CARD_TYPES, TYPE_RANK, SUITS, MAX_CARDS, PHASE_GUESSING, PHASE_CHOOSING_JOKERS, card_types, is_joker,
 )
 
 LEVELS = ("noob", "pro", "hacker")
@@ -105,7 +105,14 @@ def _expected_other_jokers(game, me):
     return n_others * jokers_left / unseen if unseen else 0
 
 
+PRO_RANDOM_MOVE_CHANCE = 0.15
+
+
 def _pro_turn(game, me, rng):
+    # Now and then play a random move: feels less robotic, and stops a table of
+    # Pro bots getting stuck in a cycle when nearly the whole deck is dealt.
+    if rng.random() < PRO_RANDOM_MOVE_CHANCE:
+        return _noob_turn(game, me, rng)
     previous = game.current_guess
     my_jokers = me.joker_count()
     own = {t: me.count_type(t) for t in CARD_TYPES}
@@ -158,7 +165,8 @@ def _hacker_turn(game, me, rng):
 
     if previous is not None:
         t, q = previous["card_type"], previous["quantity"]
-        if base[t] <= q <= base[t] + total_jokers:
+        at_cap = me.card_count >= MAX_CARDS     # riddling wins nothing at the cap: skip it
+        if base[t] <= q <= base[t] + total_jokers and not at_cap:
             return {"type": "riddle"}       # jokers can make the count exactly q: guaranteed
         if q > base[t] + total_jokers:
             return {"type": "fiddle"}       # false even with every joker: guaranteed

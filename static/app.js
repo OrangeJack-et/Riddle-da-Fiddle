@@ -119,7 +119,8 @@ function describe(e) {
     case "round_result":
       if (e.kind === "fiddle") return `There were ${e.count} ${e.guess.card_type}. ${nameOf(e.winner)} wins the round; ${nameOf(e.loser)} loses a card.`;
       return e.correct
-        ? `There were exactly ${e.count}! ${nameOf(e.caller)} riddled correctly and gains a card.`
+        ? `There were exactly ${e.count}! ${nameOf(e.caller)} riddled correctly` +
+          (e.at_cap ? " but is already at the maximum of 8 cards." : " and gains a card.")
         : `There were ${e.count}, not ${e.guess.quantity}. ${nameOf(e.caller)} riddled wrong and loses 2 cards.`;
     case "player_eliminated": return `${nameOf(e.player)} is out!`;
     case "game_won": return e.early ? `${e.reason}: ${nameOf(e.player)} wins with the most cards.` : `🎻 ${nameOf(e.player)} wins the game!`;
@@ -282,7 +283,7 @@ function renderLastRound(r) {
   if (!r) return;
   const outcome = r.kind === "fiddle"
     ? `${esc(nameOf(r.caller))} fiddled ${esc(nameOf(r.guesser))}'s ${guessText(r.guess)}. There were <b>${r.count}</b>: ${esc(nameOf(r.loser))} lost a card.`
-    : `${esc(nameOf(r.caller))} riddled ${guessText(r.guess)}. There were <b>${r.count}</b>: ${r.correct ? "correct, +1 card" : "wrong, −2 cards"}.`;
+    : `${esc(nameOf(r.caller))} riddled ${guessText(r.guess)}. There were <b>${r.count}</b>: ${r.correct ? (r.at_cap ? "correct (already at 8 cards)" : "correct, +1 card") : "wrong, −2 cards"}.`;
   const rows = Object.entries(r.hands).map(([id, cards]) => `
     <div class="reveal-row"><span class="who">${esc(nameOf(id))}</span><span class="cards">${cards.map((c) => cardHtml(c, true)).join("")}</span></div>`).join("");
   el.innerHTML = `<h2>Last reveal (round ${r.round})</h2><p>${outcome}</p>${rows}`;

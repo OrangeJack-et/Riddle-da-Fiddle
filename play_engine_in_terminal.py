@@ -45,6 +45,8 @@ def describe(event):
         lines.append("There were " + str(event["count"]) + " " + g["card_type"] + " (guess was " + str(g["quantity"]) + ")")
         if event["kind"] == "fiddle":
             lines.append("Player " + str(event["winner"]) + " won the round, player " + str(event["loser"]) + " loses a card")
+        elif event["correct"] and event["at_cap"]:
+            lines.append("Player " + str(event["caller"]) + " riddled correctly but is already at the maximum of 8 cards")
         elif event["correct"]:
             lines.append("Player " + str(event["caller"]) + " riddled correctly and gains a card!")
         else:

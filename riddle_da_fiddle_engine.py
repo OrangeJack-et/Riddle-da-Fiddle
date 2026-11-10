@@ -25,6 +25,7 @@ import random
 # ---------------------------------------------------------------- constants
 
 STARTING_CARDS = 6
+MAX_CARDS = 8          # a correct riddle can't take you above this
 CARD_TYPES = ("lower", "middle", "face")
 TYPE_RANK = {"lower": 0, "middle": 1, "face": 2}
 SUITS = ("hearts", "diamonds", "clubs", "spades")
@@ -160,20 +161,32 @@ class Game:
             raise IllegalAction("The game has already started")
         return self._start_round()
 
-    def _start_round(self):
+    def _start_round(self, starter_id=None):
+        """Deal a new round. starter_id: who starts (the last round's loser);
+        if they're out, the next player still in after them starts.
+        None (first round) = the first seat starts."""
         self.round_number += 1
         self._round_players = {p.id for p in self.active_players()}
         deck = build_deck(self.rng)
         for player in self.players:
             player.hand = []
-            if player.eliminated:
-                continue
-            # The deck only has 54 cards; if hands would need more, deal what's left.
-            for _ in range(min(player.card_count, len(deck))):
-                player.hand.append(deck.pop())
+        # Deal like a real dealer: one card at a time round the table, skipping
+        # anyone whose hand is full. If the 54 cards run out (e.g. 8 players near
+        # the 8-card cap), the players with the most cards are the ones left short.
+        dealing = [p for p in self.players if not p.eliminated]
+        while deck and dealing:
+            for player in dealing:
+                if deck:
+                    player.hand.append(deck.pop())
+            dealing = [p for p in dealing if len(p.hand) < p.card_count]
 
-        # Same as the desktop version: the first remaining player starts each round.
-        self.current_index = self.players.index(self.active_players()[0])
+        if starter_id is None:
+            self.current_index = self.players.index(self.active_players()[0])
+        else:
+            index = self.players.index(self.get_player(starter_id))
+            if self.players[index].eliminated:
+                index = self._next_active_index(index)
+            self.current_index = index
         self.current_guess = None
         self.pending_fiddle = None
         self.phase = PHASE_GUESSING
@@ -316,6 +329,7 @@ class Game:
             "winner": winner.id,
             "loser": loser.id,
             "change": {loser.id: -1},
+            "next_starter": loser.id,       # whoever lost a card starts next round
         }
         return self._finish_round(result)
 
@@ -331,7 +345,13 @@ class Game:
             count = guess["quantity"]
 
         correct = guess["quantity"] == count
-        change = 1 if correct else -2
+        at_cap = correct and riddler.card_count >= MAX_CARDS
+        if not correct:
+            change = -2
+        elif at_cap:
+            change = 0                      # already at the maximum: no extra card
+        else:
+            change = 1
         riddler.card_count += change
 
         result = {
@@ -343,6 +363,9 @@ class Game:
             "jokers_in_play": jokers,
             "correct": correct,
             "change": {riddler.id: change},
+            "at_cap": at_cap,
+            # Correct: the guesser "got riddled" and starts. Wrong: the riddler lost 2 and starts.
+            "next_starter": guess["player_id"] if correct else riddler.id,
         }
         return self._finish_round(result)
 
@@ -369,7 +392,7 @@ class Game:
             events.append({"type": "game_won", "player": self.winner_id})
             return events
 
-        return events + self._start_round()
+        return events + self._start_round(result["next_starter"])
 
     def end_early(self, reason=""):
         """Stop the game now; the remaining player with the most cards wins.
