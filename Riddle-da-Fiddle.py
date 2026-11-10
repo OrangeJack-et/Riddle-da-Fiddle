@@ -42,10 +42,12 @@ class Player:
             return card_type, quantity
             
     def Turn(self, first_turn, guess):
+        print('Player ' + str(self.id ) + ' turn')
+        print('Your hand: ' + str(self.hand))
         if first_turn:
             return self.Make_guess(guess)
         while True:
-            choice = input(guess[0] + ' ' + str(guess[1]) + " Do you: Guess, Fiddle, or riddle?: ").strip().lower()
+            choice = input('Previous guess: ' + str(guess[1]) + ' ' + guess[0] + ". Do you: Guess, Fiddle, or riddle?: ").strip().lower()
             if choice == 'fiddle': 
                 print('fiddle')
                 return 'fiddle'
@@ -74,7 +76,27 @@ class Player:
                 face += 1
         return lower, middle, face
 
+    def Jokers_Fiddle_or_Riddle(self, fiddle_or_riddle):
+        num_jokers = 0
+        for i in range(len(self.hand)):
+            if self.hand[i][0] == 0: 
+                num_jokers += 1
+        if fiddle_or_riddle == 'riddle':
+            return num_jokers
+        if num_jokers > 0:
+            print('you have ' + str(num_jokers) + ' jokers')
+            while True:
+                try:
+                    jokers_used = int(input('player ' + str(self.id) + ', how many do you want to count towards the score?: '))
+                except ValueError:
+                    print('Please input a integer')
+                    continue
+                if 0 <= jokers_used <= num_jokers:
+                    return jokers_used
+                print('you dont have ' + str(jokers_used) + ' number of jokers, you have ' + str(num_jokers))
+        return 0
 
+        
 class Game:
     def __init__(self, Num_players):
         self.Num_players = Num_players
@@ -89,7 +111,7 @@ class Game:
 
         #Adding Jokers
         deck.append([0, -1])
-        deck.append([0, 1])
+        deck.append([0, -2])
 
         shuffled_deck = deck
         ran.shuffle(shuffled_deck)
@@ -109,8 +131,9 @@ class Game:
             player_list.append(Player(i, 6))
         return player_list
 
-    def Counting_Total_Card(self, card_type_bet):
+    def Counting_Total_Card(self, card_type_bet, amount_guessed ,fiddle_or_riddle):
         count = 0
+        jokers = 0
         if card_type_bet == 'lower':
             card_type_bet = 0
         elif card_type_bet == 'middle':
@@ -119,18 +142,28 @@ class Game:
             card_type_bet = 2
         for i in range(len(self.player_list)):
             count += self.player_list[i].Counting_cards()[card_type_bet]
+            jokers += self.player_list[i].Jokers_Fiddle_or_Riddle(fiddle_or_riddle)
+        if fiddle_or_riddle == 'fiddle':
+            count += jokers
+        else:
+            if count <= amount_guessed <= (count + jokers):
+                return amount_guessed
         return count
 
     def Deciding_winner_fiddle(self, count, guess, current_player):
         if guess <= count:
+            print('player ' + str(self.player_list[current_player- 1].id) + ' won the round')
             self.player_list[current_player].Change_card_count(-1)
         else:
+            print('player ' + str(self.player_list[current_player].id) + ' won the round')
             self.player_list[current_player - 1].Change_card_count(-1)
 
     def Deciding_winner_riddle(self, count, guess, current_player):
         if guess == count:
+            print('player ' + str(self.player_list[current_player].id) + ' riddled correctly, there were exactly ' + str(guess) + ' cards')
             self.player_list[current_player].Change_card_count(1)
         else:
+            print('player ' + str(self.player_list[current_player].id) + ' riddled incorrectly, there were ' + str(count) + ' cards, not ' + str(guess))
             self.player_list[current_player].Change_card_count(-2)
 
     def Round(self, starting_player):
@@ -146,13 +179,14 @@ class Game:
             if current_player == len(self.player_list):
                 current_player = 0
         current_player -= 1
-        count = self.Counting_Total_Card(past_guess[0])
+        count = self.Counting_Total_Card(past_guess[0], past_guess[1], guess)
         if guess == 'fiddle':
             self.Deciding_winner_fiddle(count, past_guess[1], current_player)
         if guess == 'riddle':
             self.Deciding_winner_riddle(count, past_guess[1], current_player)
+        print('Number of cards remaining:')
         for player in self.player_list:
-            print(player.card_count)
+            print('player ' + str(player.id) + ': ' + str(player.card_count))
 
     def Start_Game(self):
         while True:
@@ -165,6 +199,7 @@ class Game:
                 break
             self.Redeal()
             self.Round(0)
+        print('Player ' + str(self.player_list[0].id) + ' won the game')
             
 
 Game(3).Start_Game()
