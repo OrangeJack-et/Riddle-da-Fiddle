@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Riddle-da-Fiddle</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Riddle-da-Fiddle <span aria-hidden="true">🎻</span></h1>
+    <button id="leave-btn" class="btn ghost small hidden" type="button">Leave</button>
+  </header>
+
+  <main>
+    <!-- Home: create or join -->
+    <section id="screen-home" class="screen panel narrow">
+      <label class="field">Your name
+        <input id="name-input" maxlength="16" autocomplete="nickname" placeholder="e.g. Jack">
+      </label>
+      <button id="create-btn" class="btn primary wide" type="button">Create a game</button>
+      <div class="divider"><span>or join one</span></div>
+      <div class="row">
+        <input id="code-input" maxlength="4" placeholder="CODE" autocomplete="off" class="code-input">
+        <button id="join-btn" class="btn" type="button">Join</button>
+      </div>
+    </section>
+
+    <!-- Lobby -->
+    <section id="screen-lobby" class="screen panel narrow hidden">
+      <p class="muted">Game code</p>
+      <div class="room-code-row">
+        <span id="lobby-code" class="room-code"></span>
+        <button id="copy-link-btn" class="btn ghost small" type="button">Copy invite link</button>
+      </div>
+      <h2>Players <span id="lobby-count" class="muted"></span></h2>
+      <ul id="lobby-seats" class="seat-list"></ul>
+      <div id="host-controls" class="hidden">
+        <div class="row">
+          <select id="bot-level">
+            <option value="noob">Noob bot</option>
+            <option value="pro">Pro bot</option>
+            <option value="hacker">Hacker bot (sees all cards)</option>
+          </select>
+          <button id="add-bot-btn" class="btn" type="button">Add bot</button>
+        </div>
+        <button id="start-btn" class="btn primary wide" type="button">Start game</button>
+      </div>
+      <p id="lobby-wait" class="muted hidden">Waiting for the host to start…</p>
+    </section>
+
+    <!-- Game -->
+    <section id="screen-game" class="screen hidden">
+      <div id="players" class="players"></div>
+
+      <div class="table panel">
+        <div id="round-label" class="muted"></div>
+        <div id="current-guess" class="current-guess"></div>
+        <div id="status-line" class="status-line"></div>
+
+        <div id="joker-chooser" class="joker-chooser hidden"></div>
+
+        <div id="turn-controls" class="turn-controls hidden">
+          <div class="type-picker" role="radiogroup" aria-label="Card type">
+            <button type="button" class="btn type-btn" data-type="lower">Lower</button>
+            <button type="button" class="btn type-btn" data-type="middle">Middle</button>
+            <button type="button" class="btn type-btn" data-type="face">Face</button>
+          </div>
+          <div class="qty">
+            <button type="button" class="btn small" id="qty-down" aria-label="Less">−</button>
+            <span id="qty-value">1</span>
+            <button type="button" class="btn small" id="qty-up" aria-label="More">+</button>
+          </div>
+          <div class="row actions">
+            <button type="button" class="btn primary" id="guess-btn">Guess</button>
+            <button type="button" class="btn danger" id="fiddle-btn">Fiddle</button>
+            <button type="button" class="btn gold" id="riddle-btn">Riddle</button>
+          </div>
+        </div>
+
+        <div id="game-over" class="game-over hidden"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Your hand <span id="hand-summary" class="muted"></span></h2>
+        <div id="hand" class="hand"></div>
+      </div>
+
+      <div id="last-round" class="panel hidden"></div>
+
+      <div class="panel">
+        <h2>Log</h2>
+        <ol id="log" class="log"></ol>
+      </div>
+
+      <div id="host-game-controls" class="hidden center">
+        <button id="end-game-btn" class="btn ghost small" type="button">End game &amp; return to lobby</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

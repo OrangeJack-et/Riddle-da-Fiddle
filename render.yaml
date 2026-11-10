@@ -1,0 +1,15 @@
+# Render deploy settings (render.com). Render reads this when you create a "Blueprint" from the repo.
+services:
+  - type: web
+    name: riddle-da-fiddle
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # One worker only: games live in the server's memory, so every player must reach the same process.
+    startCommand: gunicorn -w 1 --threads 100 server:app
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true

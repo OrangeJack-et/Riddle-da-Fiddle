@@ -371,6 +371,19 @@ class Game:
 
         return events + self._start_round()
 
+    def end_early(self, reason=""):
+        """Stop the game now; the remaining player with the most cards wins.
+        (Used by the server, e.g. when only bots are left, since two perfect
+        Hacker bots can riddle forever.)"""
+        if self.phase in (PHASE_WAITING, PHASE_GAME_OVER):
+            return []
+        remaining = self.active_players()
+        winner = max(remaining, key=lambda p: p.card_count)   # ties: earliest seat
+        self.phase = PHASE_GAME_OVER
+        self.pending_fiddle = None
+        self.winner_id = winner.id
+        return [{"type": "game_won", "player": winner.id, "early": True, "reason": reason}]
+
     # ------------------------------------------------------------ views
 
     def state_for(self, player_id):

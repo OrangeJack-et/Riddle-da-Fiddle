@@ -4,7 +4,7 @@
 
 ## Status
 
-A **multiplayer web version** is in progress. The game logic is ready for it; the server and website come next.
+The **multiplayer web version** works: lobbies with codes, 2–8 players, bots, and reconnecting. It still uses a plain test page; the proper design comes next.
 
 ## Files
 
@@ -12,23 +12,42 @@ A **multiplayer web version** is in progress. The game logic is ready for it; th
 |------|------------|
 | `riddle_da_fiddle_desktop.py` | The original terminal game, driven by `input()`. Kept as-is. |
 | `riddle_da_fiddle_engine.py` | Web-ready game engine with the same rules: no `input()`/`print()`, driven by player actions, returns events and per-player views. |
+| `bots.py` | Computer players: **Noob** (mostly random), **Pro** (plays the odds), **Hacker** (cheats: sees every hand). |
+| `server.py` | Web server (Flask-SocketIO): lobbies, host controls, bots, disconnect handling. |
+| `templates/index.html`, `static/app.js`, `static/style.css` | The web page. |
+| `static/cards/` | Card images, named like `ace_of_spades.svg` and `red_joker.svg`. Replace them with your own art using the same names. |
 | `play_engine_in_terminal.py` | Plays the web-ready engine in the terminal, for testing it without the website. |
+| `requirements.txt`, `render.yaml` | What the server needs, and how Render should run it. |
 
 ## How to run
 
-Requires Python 3 (no extra packages). Everyone shares one computer.
+### Web version (on your computer)
 
-Original version:
+```
+pip install -r requirements.txt
+python server.py
+```
+
+Then open http://localhost:5000. To test with several players on one computer, use different browsers, or `localhost:5000` in one tab and `127.0.0.1:5000` in another. Tabs of the same address share a saved seat.
+
+### Terminal versions (Python 3, no extra packages, everyone shares one computer)
 
 ```
 python riddle_da_fiddle_desktop.py
-```
-
-Web-ready engine, in the terminal:
-
-```
 python play_engine_in_terminal.py
 ```
+
+## How the web version works
+
+- **Lobby:** create a game to get a 4-letter code (or an invite link) and become the host. Friends join with the code. 2–8 seats.
+- **Host controls:** add Noob/Pro/Hacker bots, remove players or bots, start the game, end it early.
+- **Hidden cards:** each browser is only ever sent its own hand. Other hands only appear in the reveal after a fiddle or riddle. Bots run on the server, so the Hacker's view never reaches a browser.
+- **Disconnects:** a refresh or wifi drop puts you back in your seat. If you're gone for 30 seconds (or the host clicks *Bot now*), a Pro bot plays your seat until you return. If you click *Leave*, or the host kicks you, a bot keeps your seat for the rest of that game.
+- **Only bots left:** if no human is left playing, the game ends and the bot with the most cards wins. Two Hacker bots would otherwise riddle forever.
+
+## Credits
+
+Card images: public-domain vector playing cards, via [hayeah/playing-cards-assets](https://github.com/hayeah/playing-cards-assets) (originally from the *vector-playing-cards* project).
 
 ## Rules
 
@@ -78,6 +97,8 @@ Players with no cards left are eliminated. The **last player with cards wins**.
 ## Plans
 
 - [x] Restructure the game logic so it's driven by player actions rather than terminal input
-- [ ] Multiplayer web version (Python backend, browser frontend)
-- [ ] Game rooms / lobby codes so friends can play together online
+- [x] Multiplayer web version (Python backend, browser frontend)
+- [x] Game rooms / lobby codes so friends can play together online
+- [x] Bots (Noob, Pro, Hacker)
+- [ ] Put it online (Render + fiddle.jackmarsters.com)
 - [ ] Graphics and a violin-themed look 🎻

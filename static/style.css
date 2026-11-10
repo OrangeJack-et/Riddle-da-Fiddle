@@ -1,0 +1,149 @@
+/* Riddle-da-Fiddle test page. Plain on purpose: the real design comes with your own assets. */
+
+:root {
+  --felt: #1f5135;
+  --felt-dark: #163c27;
+  --panel: rgba(0, 0, 0, 0.25);
+  --panel-border: rgba(255, 255, 255, 0.12);
+  --text: #f4efe3;
+  --muted: #bfcbbf;
+  --accent: #e9c46a;
+  --primary: #2a9d8f;
+  --danger: #c4453c;
+  --card-w: 72px;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: radial-gradient(ellipse at top, var(--felt), var(--felt-dark));
+}
+
+main { max-width: 960px; margin: 0 auto; padding: 0 16px 48px; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 960px; margin: 0 auto; padding: 16px;
+}
+.topbar h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
+
+h2 { font-size: 1rem; margin: 0 0 10px; }
+
+.hidden { display: none !important; }
+.muted { color: var(--muted); font-weight: normal; }
+.center { text-align: center; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.narrow { max-width: 420px; margin: 24px auto; }
+
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.field { display: block; margin-bottom: 12px; }
+
+input, select {
+  font: inherit; color: #1b1b1b; background: #fbf8f0;
+  border: 0; border-radius: 8px; padding: 10px 12px;
+}
+.field input { display: block; width: 100%; margin-top: 6px; }
+.code-input { flex: 1; text-transform: uppercase; letter-spacing: 0.3em; font-weight: 700; min-width: 0; }
+
+.btn {
+  font: inherit; font-weight: 600; cursor: pointer;
+  color: var(--text); background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
+  padding: 10px 16px;
+}
+.btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.primary { background: var(--primary); border-color: transparent; }
+.btn.danger { background: var(--danger); border-color: transparent; }
+.btn.gold { background: var(--accent); color: #2b2210; border-color: transparent; }
+.btn.ghost { background: transparent; }
+.btn.small { padding: 4px 10px; font-size: 0.85rem; }
+.btn.wide { width: 100%; }
+.btn.selected { outline: 3px solid var(--accent); }
+
+.divider { display: flex; align-items: center; gap: 8px; margin: 16px 0; color: var(--muted); font-size: 0.9rem; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--panel-border); }
+
+.room-code-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.room-code { font-size: 2.4rem; font-weight: 800; letter-spacing: 0.25em; color: var(--accent); }
+
+.seat-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.seat-list li {
+  display: flex; align-items: center; gap: 8px; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--panel-border);
+}
+.badge {
+  display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.15); margin-left: 4px;
+}
+.badge.host { background: var(--accent); color: #2b2210; }
+.badge.bot { background: #5a6fa8; }
+.badge.hacker { background: #8a3fa0; }
+.badge.warn { background: var(--danger); }
+
+#host-controls .row { margin-bottom: 12px; }
+#host-controls select { flex: 1; }
+
+/* players around the table */
+.players { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.player {
+  background: var(--panel); border: 2px solid transparent; border-radius: var(--radius); padding: 10px;
+}
+.player.current { border-color: var(--accent); }
+.player.out { opacity: 0.45; }
+.player .name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player .meta { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+.player .btn { margin-top: 6px; }
+.mini-backs { display: flex; margin-top: 6px; flex-wrap: wrap; gap: 2px; }
+.mini-back { width: 12px; height: 17px; border-radius: 2px; background: repeating-linear-gradient(45deg, #7b2d26, #7b2d26 3px, #a33c33 3px, #a33c33 6px); border: 1px solid #f4efe3; }
+
+.table { text-align: center; }
+.current-guess { font-size: 1.8rem; font-weight: 800; margin: 6px 0; }
+.status-line { color: var(--muted); min-height: 1.4em; }
+
+.turn-controls { margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.type-picker { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.qty { display: flex; align-items: center; gap: 12px; font-size: 1.6rem; font-weight: 800; }
+.qty span { min-width: 2ch; }
+.actions { justify-content: center; }
+
+.joker-chooser { margin-top: 16px; }
+.joker-chooser .row { justify-content: center; margin-top: 8px; }
+
+.game-over { margin-top: 16px; font-size: 1.3rem; font-weight: 700; }
+.game-over .btn { margin-top: 12px; }
+
+/* cards */
+.hand { display: flex; flex-wrap: wrap; gap: 8px; }
+.card { width: var(--card-w); aspect-ratio: 5 / 7; border-radius: 6px; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); display: block; }
+.card.small { --card-w: 46px; }
+.reveal-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+.reveal-row .who { width: 110px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reveal-row .cards { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.log { margin: 0; padding-left: 20px; max-height: 220px; overflow-y: auto; font-size: 0.9rem; }
+.log li { margin: 2px 0; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  background: #222; color: #fff; padding: 10px 16px; border-radius: 8px;
+  max-width: calc(100% - 32px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 520px) {
+  :root { --card-w: 54px; }
+  .room-code { font-size: 2rem; }
+  .current-guess { font-size: 1.4rem; }
+}
