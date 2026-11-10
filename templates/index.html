@@ -9,7 +9,10 @@
 <body>
   <header class="topbar">
     <h1>Riddle-da-Fiddle <span aria-hidden="true">🎻</span></h1>
-    <button id="leave-btn" class="btn ghost small hidden" type="button">Leave</button>
+    <div class="topbar-buttons">
+      <button id="rules-btn" class="btn ghost small" type="button">📖 Rules</button>
+      <button id="leave-btn" class="btn small hidden" type="button">Leave</button>
+    </div>
   </header>
 
   <main>
@@ -106,6 +109,107 @@
   </main>
 
   <button id="chat-bubble" class="chat-bubble hidden" type="button"></button>
+
+  <!-- Rule book: open any time from the top bar -->
+  <div id="rules" class="rules-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <article class="rules-box">
+      <button id="rules-close" class="btn small rules-close" type="button" aria-label="Close the rules">✕</button>
+      <h2 id="rules-title" class="rules-title">📖 How to play Riddle-da-Fiddle</h2>
+
+      <section class="rules-summary">
+        <h3>Quick summary</h3>
+        <ul>
+          <li>Everyone guesses how many cards of a type are in <b>all hands put together</b>.</li>
+          <li>On your turn: <b>guess higher</b>, <b>fiddle</b> (the last guess is too high) or <b>riddle</b> (the last guess is exactly right).</li>
+          <li><b>Fiddle:</b> whoever was wrong loses 1 card. <b>Riddle:</b> right = +1 card, wrong = −2 cards.</li>
+          <li>Your cards are your lives. Run out and you're out. <b>Last player with cards wins.</b></li>
+        </ul>
+      </section>
+
+      <h3>The cards</h3>
+      <p>A normal 52-card deck plus 2 jokers. Every card is one of three <b>types</b>:</p>
+      <table class="rules-table">
+        <tr><th>Lower</th><td>2 – 6</td><td class="rule-cards"><img src="/static/cards/2_of_hearts.svg" alt="2 of hearts"><img src="/static/cards/6_of_clubs.svg" alt="6 of clubs"></td></tr>
+        <tr><th>Middle</th><td>7 – 10</td><td class="rule-cards"><img src="/static/cards/7_of_spades.svg" alt="7 of spades"><img src="/static/cards/10_of_diamonds.svg" alt="10 of diamonds"></td></tr>
+        <tr><th>Face</th><td>J, Q, K</td><td class="rule-cards"><img src="/static/cards/jack_of_hearts.svg" alt="Jack of hearts"><img src="/static/cards/king_of_spades.svg" alt="King of spades"></td></tr>
+      </table>
+      <ul>
+        <li class="rule-with-card"><img src="/static/cards/ace_of_spades.svg" alt="Ace of spades"><span><b>Aces are wild:</b> they count as Lower, Middle <i>and</i> Face.</span></li>
+        <li class="rule-with-card"><img src="/static/cards/red_joker.svg" alt="Joker"><span><b>Jokers</b> are flexible: they can count towards whatever was guessed, or not (see <i>Jokers</i> below).</span></li>
+      </ul>
+
+      <h3>Each round</h3>
+      <ul>
+        <li>Everyone starts with <b>6 cards</b>. Your number of cards is also your number of <b>lives</b>.</li>
+        <li>Every round the whole deck is shuffled and you're dealt as many cards as you have lives. You only see your own hand.</li>
+        <li>The most cards you can have is <b>8</b>.</li>
+        <li>With lots of players near 8 cards the deck can run out; then the biggest hands are left a card or two short.</li>
+      </ul>
+
+      <h3>Your turn</h3>
+      <p>The first player of a round must make a guess. After that, on your turn you do <b>one</b> of these:</p>
+      <dl class="rules-moves">
+        <dt>Guess</dt>
+        <dd>
+          Claim there are <b>at least</b> that many cards of a type across <b>everyone's</b> hands, e.g. <i>"Middle 4"</i>.
+          Your guess must be <b>higher</b> than the last one: a bigger number, or the same number with a higher type
+          (Lower &lt; Middle &lt; Face).
+          <div class="rules-example">Middle 4 beats Lower 4 · Lower 5 beats Face 4 · Lower 4 does <i>not</i> beat Middle 4</div>
+          You can't guess more cards than there are in play (shown on the table).
+        </dd>
+        <dt class="fiddle">Fiddle</dt>
+        <dd>
+          You think the last guess is <b>wrong</b> (there aren't that many). Everyone's cards are revealed and counted:
+          <ul>
+            <li>at least that many: the guess was true, so <b>you</b> lose 1 card;</li>
+            <li>fewer: the guess was false, so the <b>guesser</b> loses 1 card.</li>
+          </ul>
+          <div class="rules-example">Sam guessed Face 3. You fiddle and there are 4 Face cards: the guess was true, you lose a card.</div>
+        </dd>
+        <dt class="riddle">Riddle</dt>
+        <dd>
+          You think the last guess is <b>exactly</b> right. Everyone's cards are revealed and counted:
+          <ul>
+            <li>exactly that many: <b>you gain 1 card</b> (if you're already on 8, nothing happens);</li>
+            <li>any other number: <b>you lose 2 cards</b>.</li>
+          </ul>
+          <div class="rules-example">Sam guessed Lower 5. You riddle and there are exactly 5 Lower cards: you go up a card.</div>
+        </dd>
+      </dl>
+      <p>A fiddle or riddle ends the round. Then the cards are reshuffled and dealt again.</p>
+
+      <h3>Jokers</h3>
+      <ul>
+        <li><b>On a fiddle:</b> everyone holding jokers secretly chooses how many of theirs count towards the guess (from none to all of them). Everyone chooses at the same time.</li>
+        <li><b>On a riddle:</b> jokers are wild. They can count as any number from none to all of them, so the riddle is right if the guess is anywhere in that range.</li>
+        <li class="rules-example">Guess Middle 6, there are 5 Middle cards and 1 joker in play. Riddle: right (the joker makes it 6). Fiddle: depends whether the joker holder counts it.</li>
+      </ul>
+
+      <h3>Who starts the next round</h3>
+      <p>The first round starts with the first player. After that, <b>whoever lost the last round starts</b>:</p>
+      <ul>
+        <li><b>Fiddle:</b> whoever lost a card.</li>
+        <li><b>Riddle right:</b> the player whose guess got riddled.</li>
+        <li><b>Riddle wrong:</b> the riddler.</li>
+      </ul>
+      <p>If that player has just been knocked out, the next player still in starts.</p>
+
+      <h3>Winning</h3>
+      <p>Lose all your cards and you're out (you can keep watching and chatting). The <b>last player with cards wins</b>.</p>
+
+      <h3>On this website</h3>
+      <ul>
+        <li><b>Results screen:</b> after every fiddle or riddle you see everyone's hand, with the cards that counted highlighted. It stays up for 10 seconds, or until everyone clicks <b>Ready</b>.</li>
+        <li><b>Bots:</b> the host can add <b>Noob</b> (plays randomly), <b>Pro</b> (plays the odds) and <b>Hacker</b> (cheats: sees everyone's cards!) bots in the lobby.</li>
+        <li><b>Disconnects:</b> if you lose connection, you have 30 seconds to come back (just reopen the page). After that a Pro bot plays for you until you return.</li>
+        <li><b>Leaving:</b> if you click <b>Leave</b> mid-game, a bot takes your seat for the rest of that game.</li>
+        <li><b>Host:</b> whoever made the game. They can add and remove bots and players, start the game, put a disconnected player's seat on a bot straight away, and end the game.</li>
+        <li><b>Only bots left:</b> the game ends and the bot with the most cards wins.</li>
+        <li><b>Chat:</b> type in the box under the log. Messages are up to 200 characters.</li>
+      </ul>
+    </article>
+  </div>
+
 
   <!-- Round results: shown after every fiddle/riddle until everyone's ready (or the timer ends) -->
   <div id="results" class="results-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="results-title">

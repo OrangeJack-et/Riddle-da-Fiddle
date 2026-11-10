@@ -9,7 +9,7 @@
   --text: #f4efe3;
   --muted: #bfcbbf;
   --accent: #e9c46a;
-  --primary: #2a9d8f;
+  --primary: #b8430a;                 /* dark orange: Create game, Start, Guess, Ready, Send… */
   --danger: #c4453c;
   --card-w: 72px;
   --radius: 12px;
@@ -32,7 +32,10 @@ main { max-width: 960px; margin: 0 auto; padding: 0 16px 48px; }
   max-width: 960px; margin: 0 auto; padding: 16px;
 }
 .topbar h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; color: var(--ink); }
-#leave-btn, #host-game-controls .btn { color: var(--ink); border-color: rgba(43, 22, 8, 0.5); }
+.topbar-buttons { display: flex; gap: 8px; }
+#rules-btn, #host-game-controls .btn { color: var(--ink); border-color: rgba(43, 22, 8, 0.5); }
+#leave-btn { background: var(--danger); color: #fff; border-color: transparent; }
+#leave-btn:hover { background: #a8352d; }
 
 h2 { font-size: 1rem; margin: 0 0 10px; }
 
@@ -193,7 +196,42 @@ input, select {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); animation: pop-in 0.2s ease-out;
 }
 
+/* rule book */
+.rules-overlay {
+  position: fixed; inset: 0; z-index: 25; overflow-y: auto;
+  background: rgba(30, 14, 4, 0.85); padding: 24px 16px;
+}
+.rules-box {
+  position: relative; max-width: 680px; margin: 0 auto; padding: 20px 22px 28px;
+  background: #3a1e0b; border: 1px solid var(--panel-border); border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); line-height: 1.5;
+  animation: pop-in 0.2s ease-out;
+}
+.rules-close { position: sticky; top: 0; float: right; z-index: 1; background: #5a3017; }
+.rules-title { font-size: 1.4rem; margin: 0 40px 12px 0; }
+.rules-box h3 { color: var(--accent); margin: 22px 0 8px; font-size: 1.05rem; }
+.rules-box p, .rules-box ul { margin: 0 0 8px; }
+.rules-box ul { padding-left: 20px; }
+.rules-summary { background: rgba(255, 255, 255, 0.07); border-radius: 10px; padding: 4px 14px 6px; }
+.rules-summary h3 { margin-top: 10px; }
+.rules-table { border-collapse: collapse; margin-bottom: 8px; }
+.rules-table th { text-align: left; padding: 4px 12px 4px 0; }
+.rules-table td { padding: 4px 12px 4px 0; }
+.rule-cards { white-space: nowrap; }
+.rule-cards img, .rule-with-card img { width: 34px; aspect-ratio: 5 / 7; border-radius: 3px; background: #fff; margin-right: 4px; vertical-align: middle; }
+.rule-with-card { list-style: none; margin-left: -20px; display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.rules-moves dt { font-weight: 800; font-size: 1.05rem; margin-top: 10px; color: #fff; }
+.rules-moves dt.fiddle { color: #ff8a80; }
+.rules-moves dt.riddle { color: var(--accent); }
+.rules-moves dd { margin: 2px 0 8px 0; }
+.rules-example {
+  list-style: none; font-size: 0.9rem; color: var(--muted); margin: 6px 0;
+  padding: 6px 10px; border-left: 3px solid var(--accent); background: rgba(255, 255, 255, 0.05);
+}
+li.rules-example { margin-left: -20px; }
+
 .toast {
+  z-index: 40;
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
   background: #222; color: #fff; padding: 10px 16px; border-radius: 8px;
   max-width: calc(100% - 32px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);

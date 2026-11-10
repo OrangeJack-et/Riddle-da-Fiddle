@@ -44,6 +44,8 @@ python play_engine_in_terminal.py
 - **Hidden cards:** each browser is only ever sent its own hand. Other hands only appear in the reveal after a fiddle or riddle. Bots run on the server, so the Hacker's view never reaches a browser.
 - **Disconnects:** a refresh or wifi drop puts you back in your seat. If you're gone for 30 seconds (or the host clicks *Bot now*), a Pro bot plays your seat until you return. If you click *Leave*, or the host kicks you, a bot keeps your seat for the rest of that game.
 - **Round results:** after each fiddle or riddle, a results screen stays up for 10 seconds (or until everyone clicks Ready). Nobody, bots included, can move until it closes.
+- **Rule book:** the 📖 Rules button in the top bar opens the full rules on any screen, even mid-game.
+- **Chat:** messages go in the log; a pop-up shows new ones when the log is off screen.
 - **Limits:** one address can create 5 games every 10 minutes, and at most 200 games can be open at once.
 - **Only bots left:** if no human is left playing, the game ends and the bot with the most cards wins. Two Hacker bots would otherwise riddle forever.
 

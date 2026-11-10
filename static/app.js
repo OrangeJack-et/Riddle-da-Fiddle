@@ -269,6 +269,9 @@ function renderGame() {
 
   // guess controls
   const myTurn = game.phase === "guessing" && game.your_turn && !deal;
+  const needsMe = myTurn || (game.phase === "choosing_jokers" && game.waiting_for_jokers.includes(state.you));
+  if (needsMe && !renderGame.neededMe && rulesOpen()) toast("It's your turn! Close the rules to play.");
+  renderGame.neededMe = needsMe;
   $("turn-controls").classList.toggle("hidden", !myTurn);
   if (myTurn) {
     const turnKey = `${game.round}-${g ? guessText(g) + g.player_id : "first"}`;
@@ -525,6 +528,15 @@ $("copy-link-btn").onclick = async () => {
   const link = `${location.origin}/?code=${state.code}`;
   try { await navigator.clipboard.writeText(link); toast("Invite link copied"); } catch { toast(link); }
 };
+
+// rule book
+function rulesOpen() { return !$("rules").classList.contains("hidden"); }
+function openRules() { $("rules").classList.remove("hidden"); $("rules-close").focus(); }
+function closeRules() { $("rules").classList.add("hidden"); $("rules-btn").focus(); }
+$("rules-btn").onclick = openRules;
+$("rules-close").onclick = closeRules;
+$("rules").addEventListener("click", (e) => { if (e.target === $("rules")) closeRules(); });   // tap outside the box
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && rulesOpen()) closeRules(); });
 
 $("chat-form").onsubmit = (e) => {
   e.preventDefault();
