@@ -229,6 +229,8 @@ input, select {
   padding: 6px 10px; border-left: 3px solid var(--accent); background: rgba(255, 255, 255, 0.05);
 }
 li.rules-example { margin-left: -20px; }
+.rules-credits { font-size: 0.85rem; color: var(--muted); }
+.rules-credits a { color: var(--highlight); }
 
 .toast {
   z-index: 40;

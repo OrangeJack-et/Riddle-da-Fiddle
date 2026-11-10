@@ -529,6 +529,31 @@ $("copy-link-btn").onclick = async () => {
   try { await navigator.clipboard.writeText(link); toast("Invite link copied"); } catch { toast(link); }
 };
 
+// background music (starts on the first click: browsers block sound until you interact)
+const music = $("music");
+music.volume = 0.3;
+const MUSIC_END = 206.5;   // the recording ends with ~3s of silence: skip it so the loop flows
+music.addEventListener("timeupdate", () => { if (music.currentTime >= MUSIC_END) music.currentTime = 0.4; });
+let musicOn = saved.get("rdf-music") !== false;
+function updateMusicButton() {
+  const label = musicOn ? "Mute music" : "Play music";
+  $("music-btn").textContent = musicOn ? "🔊" : "🔇";
+  $("music-btn").setAttribute("aria-label", label);
+  $("music-btn").title = label;
+}
+function startMusic() {
+  if (musicOn && music.paused) music.play().catch(() => { /* not allowed yet: try again on the next click */ });
+}
+$("music-btn").onclick = () => {
+  musicOn = !musicOn;
+  saved.set("rdf-music", musicOn);
+  if (musicOn) startMusic(); else music.pause();
+  updateMusicButton();
+};
+document.addEventListener("pointerdown", startMusic);
+document.addEventListener("keydown", startMusic);
+updateMusicButton();
+
 // rule book
 function rulesOpen() { return !$("rules").classList.contains("hidden"); }
 function openRules() { $("rules").classList.remove("hidden"); $("rules-close").focus(); }

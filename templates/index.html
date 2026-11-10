@@ -10,6 +10,7 @@
   <header class="topbar">
     <h1>Riddle-da-Fiddle <span aria-hidden="true">🎻</span></h1>
     <div class="topbar-buttons">
+      <button id="music-btn" class="btn ghost small" type="button" aria-label="Mute music" title="Mute music">🔊</button>
       <button id="rules-btn" class="btn ghost small" type="button">📖 Rules</button>
       <button id="leave-btn" class="btn small hidden" type="button">Leave</button>
     </div>
@@ -110,6 +111,12 @@
 
   <button id="chat-bubble" class="chat-bubble hidden" type="button"></button>
 
+  <!-- Background music: starts on your first click (browsers block autoplay). OGG first, MP3 for iPhones. -->
+  <audio id="music" loop preload="none">
+    <source src="{{ url_for('static', filename='audio/vivaldi-winter.oga') }}" type="audio/ogg">
+    <source src="{{ url_for('static', filename='audio/vivaldi-winter.mp3') }}" type="audio/mpeg">
+  </audio>
+
   <!-- Rule book: open any time from the top bar -->
   <div id="rules" class="rules-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
     <article class="rules-box">
@@ -206,7 +213,13 @@
         <li><b>Host:</b> whoever made the game. They can add and remove bots and players, start the game, put a disconnected player's seat on a bot straight away, and end the game.</li>
         <li><b>Only bots left:</b> the game ends and the bot with the most cards wins.</li>
         <li><b>Chat:</b> type in the box under the log. Messages are up to 200 characters.</li>
+        <li><b>Music:</b> 🔊 in the top bar turns the background music on or off (just for you).</li>
       </ul>
+
+      <h3>Credits</h3>
+      <p class="rules-credits">Music: Vivaldi, <i>Winter</i> (1st movement), performed by John Harrison with the Wichita State University Chamber Players, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA</a>, via <a href="https://commons.wikimedia.org/wiki/File:Vivaldi_-_Four_Seasons_4_Winter_mvt_1_Allegro_non_molto_-_John_Harrison_violin.oga" target="_blank" rel="noopener">Wikimedia Commons</a>.<br>
+        Card images: public-domain vector playing cards, via
+        <a href="https://github.com/hayeah/playing-cards-assets" target="_blank" rel="noopener">hayeah/playing-cards-assets</a>.</p>
     </article>
   </div>
 

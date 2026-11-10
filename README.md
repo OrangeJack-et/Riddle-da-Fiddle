@@ -45,11 +45,14 @@ python play_engine_in_terminal.py
 - **Disconnects:** a refresh or wifi drop puts you back in your seat. If you're gone for 30 seconds (or the host clicks *Bot now*), a Pro bot plays your seat until you return. If you click *Leave*, or the host kicks you, a bot keeps your seat for the rest of that game.
 - **Round results:** after each fiddle or riddle, a results screen stays up for 10 seconds (or until everyone clicks Ready). Nobody, bots included, can move until it closes.
 - **Rule book:** the 📖 Rules button in the top bar opens the full rules on any screen, even mid-game.
+- **Music:** background violin starts on your first click; 🔊 in the top bar mutes it (remembered per browser). Replace `static/audio/vivaldi-winter.*` to change the track.
 - **Chat:** messages go in the log; a pop-up shows new ones when the log is off screen.
 - **Limits:** one address can create 5 games every 10 minutes, and at most 200 games can be open at once.
 - **Only bots left:** if no human is left playing, the game ends and the bot with the most cards wins. Two Hacker bots would otherwise riddle forever.
 
 ## Credits
+
+Music: Vivaldi, *Winter* (1st movement), performed by John Harrison with the Wichita State University Chamber Players, licensed [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Vivaldi_-_Four_Seasons_4_Winter_mvt_1_Allegro_non_molto_-_John_Harrison_violin.oga). Files: `static/audio/vivaldi-winter.oga` (original) and `vivaldi-winter.mp3` (Wikimedia's MP3 copy, same licence).
 
 Card images: public-domain vector playing cards, via [hayeah/playing-cards-assets](https://github.com/hayeah/playing-cards-assets) (originally from the *vector-playing-cards* project).
 
