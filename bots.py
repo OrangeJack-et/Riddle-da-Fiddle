@@ -53,6 +53,14 @@ def min_legal_quantity(card_type, previous):
     return previous["quantity"] + 1
 
 
+def legal_raises(game, previous):
+    """(card_type, lowest legal quantity) for every type that can still be
+    raised without going over the number of cards in play."""
+    top = game.cards_in_play()
+    return [(t, min_legal_quantity(t, previous)) for t in CARD_TYPES
+            if min_legal_quantity(t, previous) <= top]
+
+
 def _guess(card_type, quantity):
     return {"type": "guess", "card_type": card_type, "quantity": quantity}
 
@@ -71,16 +79,17 @@ def _choose_jokers(game, me, level, rng):
 
 def _noob_turn(game, me, rng):
     previous = game.current_guess
+    options = legal_raises(game, previous)
     if previous is not None:
         roll = rng.random()
-        if roll < 0.25:
+        if roll < 0.25 or not options:
             return {"type": "fiddle"}
         if roll < 0.32:
             return {"type": "riddle"}
-    card_type = rng.choice(CARD_TYPES)
+    card_type, lowest = rng.choice(options)
     if previous is None:
-        return _guess(card_type, rng.randint(1, 3))
-    return _guess(card_type, min_legal_quantity(card_type, previous) + rng.choice([0, 0, 1, 2]))
+        return _guess(card_type, min(rng.randint(1, 3), game.cards_in_play()))
+    return _guess(card_type, min(lowest + rng.choice([0, 0, 1, 2]), game.cards_in_play()))
 
 
 # ---------------------------------------------------------------- pro
@@ -123,11 +132,8 @@ def _pro_turn(game, me, rng):
 
     # Best raise: for each type, the lowest legal guess and how likely it is to be true
     # (my own jokers count for me if someone fiddles my guess).
-    raises = []
-    for t in CARD_TYPES:
-        q = min_legal_quantity(t, previous)
-        raises.append((p_at_least(t, q, my_jokers), t, q))
-    best_p, best_type, best_q = max(raises)
+    raises = [(p_at_least(t, q, my_jokers), t, q) for t, q in legal_raises(game, previous)]
+    best_p, best_type, best_q = max(raises) if raises else (0, None, None)
 
     if previous is None:
         # Opening guess: the highest quantity that's still ~65% likely.
@@ -149,7 +155,7 @@ def _pro_turn(game, me, rng):
 
     if p_riddle >= 0.5:
         return {"type": "riddle"}
-    if (1 - p_true) >= best_p:
+    if (1 - p_true) >= best_p or best_type is None:   # no raise left: must call
         return {"type": "fiddle"}
     return _guess(best_type, best_q)
 
@@ -185,6 +191,9 @@ def _hacker_turn(game, me, rng):
         q, _, t = min(safe)
         return _guess(t, q)
 
-    # No true raise exists: bluff with the smallest one.
-    q, t = min((min_legal_quantity(t, previous), t) for t in CARD_TYPES)
+    # No true raise exists: bluff with the smallest one (or call if none is left).
+    options = legal_raises(game, previous)
+    if not options:
+        return {"type": "fiddle"}
+    q, t = min((q, t) for t, q in options)
     return _guess(t, q)

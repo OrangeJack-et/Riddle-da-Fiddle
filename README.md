@@ -43,6 +43,8 @@ python play_engine_in_terminal.py
 - **Host controls:** add Noob/Pro/Hacker bots, remove players or bots, start the game, end it early.
 - **Hidden cards:** each browser is only ever sent its own hand. Other hands only appear in the reveal after a fiddle or riddle. Bots run on the server, so the Hacker's view never reaches a browser.
 - **Disconnects:** a refresh or wifi drop puts you back in your seat. If you're gone for 30 seconds (or the host clicks *Bot now*), a Pro bot plays your seat until you return. If you click *Leave*, or the host kicks you, a bot keeps your seat for the rest of that game.
+- **Round results:** after each fiddle or riddle, a results screen stays up for 10 seconds (or until everyone clicks Ready). Nobody, bots included, can move until it closes.
+- **Limits:** one address can create 5 games every 10 minutes, and at most 200 games can be open at once.
 - **Only bots left:** if no human is left playing, the game ends and the bot with the most cards wins. Two Hacker bots would otherwise riddle forever.
 
 ## Credits
@@ -83,6 +85,7 @@ Players take turns around the table. The first player makes a **guess**: a card 
 On your turn you must do one of three things:
 
 1. **Guess**: make a higher guess than the previous one. A guess is higher if it has a **larger quantity**, or the **same quantity with a higher type** (Lower < Middle < Face).
+   You can't guess more cards than there are in play (everyone's hands added together).
 2. **Fiddle**: you think the previous guess is wrong. All hands are revealed and counted:
    - if there are **at least** that many, the guess was true, and **you lose 1 card**;
    - otherwise the guesser **loses 1 card**.
@@ -90,7 +93,7 @@ On your turn you must do one of three things:
    - if the count is **exactly** the guessed number, **you gain 1 card** (up to a **maximum of 8**: if you already have 8, you stay on 8);
    - otherwise **you lose 2 cards**.
 
-A fiddle or riddle ends the round. Cards are redealt and a new round begins.
+A fiddle or riddle ends the round. On the website a results screen shows every hand and who gained or lost cards; then cards are redealt and a new round begins.
 
 ### Who starts
 
@@ -114,5 +117,5 @@ Players with no cards left are eliminated. The **last player with cards wins**.
 - [x] Multiplayer web version (Python backend, browser frontend)
 - [x] Game rooms / lobby codes so friends can play together online
 - [x] Bots (Noob, Pro, Hacker)
-- [ ] Put it online (Render + fiddle.jackmarsters.com)
+- [x] Put it online (Render + fiddle.jackmarsters.com)
 - [ ] Graphics and a violin-themed look 🎻

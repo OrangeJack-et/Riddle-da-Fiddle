@@ -35,6 +35,12 @@ BOT_DELAY = float(os.environ.get("BOT_DELAY", 1.5))                # seconds a b
 TAKEOVER_LEVEL = "pro"                                              # bot level that fills in for humans
 EMPTY_ROOM_TIMEOUT = 10 * 60                                        # delete rooms nobody is in
 CODE_LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"                           # no I/O: too easy to confuse
+RESULTS_PAUSE = float(os.environ.get("RESULTS_PAUSE", 10))         # seconds the round results screen stays up
+DEAL_MS_PER_CARD = 120                                              # dealing animation: gap between cards
+DEAL_FLY_MS = 350                                                   # ...and how long one card takes to fly
+MAX_ROOMS = 200                                                     # rooms open at once, site-wide
+ROOMS_PER_IP = 5                                                    # rooms one address can create...
+ROOMS_PER_IP_WINDOW = 10 * 60                                       # ...in this many seconds
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", secrets.token_hex(16))
@@ -43,6 +49,7 @@ socketio = SocketIO(app, async_mode="threading")
 LOCK = threading.RLock()   # every change to ROOMS happens while holding this
 ROOMS = {}                 # code -> Room
 SID_INDEX = {}             # socket id -> (room code, seat id)
+ROOMS_CREATED = {}         # ip address -> times it created a room (for the rate limit)
 
 
 class UserError(Exception):
@@ -91,6 +98,11 @@ class Room:
         self.next_seat_number = 1
         self.bot_task_running = False
         self.empty_since = None
+        # Round results screen: while set, nobody (human or bot) can move.
+        # {"until": time.time() it ends, "ready": {seat ids who clicked Ready}, "generation": n}
+        self.results = None
+        self.results_generation = 0
+        self.deal_until = 0                 # time.time() the dealing animation ends (bots wait for it)
 
     def seat(self, seat_id):
         for seat in self.seats:
@@ -136,6 +148,26 @@ def new_code():
         code = "".join(random.choice(CODE_LETTERS) for _ in range(4))
         if code not in ROOMS:
             return code
+
+
+def client_ip():
+    """The player's address. On Render the real one is the first entry of
+    X-Forwarded-For (it can be faked, which is why there's a site-wide cap too)."""
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    return forwarded.split(",")[0].strip() or request.remote_addr or "?"
+
+
+def check_room_limits():
+    """Stop one person (or a script) creating thousands of rooms."""
+    now = time.time()
+    for ip in list(ROOMS_CREATED):
+        ROOMS_CREATED[ip] = [t for t in ROOMS_CREATED[ip] if now - t < ROOMS_PER_IP_WINDOW]
+        if not ROOMS_CREATED[ip]:
+            del ROOMS_CREATED[ip]
+    ip = client_ip()
+    if len(ROOMS) >= MAX_ROOMS or len(ROOMS_CREATED.get(ip, [])) >= ROOMS_PER_IP:
+        raise UserError("Too many games have been made recently, try again in a few minutes.")
+    ROOMS_CREATED.setdefault(ip, []).append(now)
 
 
 def attach(room, seat, sid):
@@ -221,6 +253,13 @@ def payload(room, seat, events):
         "min_players": MIN_PLAYERS,
         "max_players": MAX_PLAYERS,
         "game": room.game.state_for(seat.id) if room.game else None,
+        "results": {
+            "seconds_left": max(0, room.results["until"] - now),
+            "total": RESULTS_PAUSE,
+            "ready": sorted(room.results["ready"]),
+        } if room.results else None,
+        "deal_ms_per_card": DEAL_MS_PER_CARD,
+        "deal_fly_ms": DEAL_FLY_MS,
         "events": events or [],
     }
 
@@ -245,12 +284,58 @@ def check_only_bots_left(room):
     return game.end_early("Only bots were left")
 
 
+# ---------------------------------------------------------------- round results pause
+
+def after_moves(room, events, wake_bots=True):
+    """Run after any move (human or bot): end bot-only games, put up the
+    results screen if a round just finished, tell everyone, wake the bots."""
+    events = list(events) + check_only_bots_left(room)
+    if any(e["type"] == "round_result" for e in events):
+        start_results(room)
+    broadcast(room, events)
+    if wake_bots:
+        schedule_bots(room)
+
+
+def start_results(room):
+    room.results_generation += 1
+    room.results = {"until": time.time() + RESULTS_PAUSE, "ready": set(), "generation": room.results_generation}
+    socketio.start_background_task(results_timer, room.code, room.results_generation)
+
+
+def results_timer(code, generation):
+    socketio.sleep(RESULTS_PAUSE)
+    with LOCK:
+        room = ROOMS.get(code)
+        if room and room.results and room.results["generation"] == generation:
+            end_results(room)
+
+
+def start_deal_wait(room):
+    """Browsers animate the deal one card at a time; bots wait until it's done."""
+    if room.game_running():
+        cards = room.game.cards_in_play()
+        room.deal_until = time.time() + (max(cards - 1, 0) * DEAL_MS_PER_CARD + DEAL_FLY_MS) / 1000 + 0.3
+
+
+def end_results(room):
+    room.results = None
+    start_deal_wait(room)
+    broadcast(room)
+    schedule_bots(room)
+
+
+def everyone_ready(room):
+    watching = {s.id for s in room.connected_humans()}
+    return watching <= room.results["ready"]
+
+
 # ---------------------------------------------------------------- bots
 
 def bot_actors(room):
     """Seats a bot needs to act for right now."""
     game = room.game
-    if not room.game_running():
+    if not room.game_running() or room.results:   # results screen up: wait
         return []
     if game.phase == PHASE_GUESSING:
         seat = room.seat(game.current_player().id)
@@ -275,6 +360,13 @@ def bot_loop(code):
             room = ROOMS.get(code)
             if room is None:
                 return
+            deal_wait = room.deal_until - time.time()
+        if deal_wait > 0:                 # cards still being dealt on screen
+            socketio.sleep(deal_wait)
+        with LOCK:
+            room = ROOMS.get(code)
+            if room is None:
+                return
             actors = bot_actors(room)
             if not actors or not room.connected_humans():   # nobody watching: pause
                 room.bot_task_running = False
@@ -287,8 +379,7 @@ def bot_loop(code):
                 app.logger.error("Bot %s made an illegal move %s: %s", seat.id, action, error)
                 room.bot_task_running = False
                 return
-            events += check_only_bots_left(room)
-            broadcast(room, events)
+            after_moves(room, events, wake_bots=False)   # this loop carries on by itself
 
 
 # ---------------------------------------------------------------- disconnect timers
@@ -391,6 +482,7 @@ def leave_current_room(sid):
 @handler("create_room")
 def create_room(data):
     name = clean_name(data.get("name"))
+    check_room_limits()
     leave_current_room(request.sid)
     room = Room(new_code())
     ROOMS[room.code] = room
@@ -504,6 +596,7 @@ def start_game(data):
         raise UserError("You need " + str(MIN_PLAYERS) + " to " + str(MAX_PLAYERS) + " players")
     room.game = Game([s.id for s in room.seats], names={s.id: s.name for s in room.seats})
     events = room.game.start()
+    start_deal_wait(room)
     broadcast(room, events)
     schedule_bots(room)
 
@@ -513,10 +606,21 @@ def action(data):
     room, seat = caller()
     if room.game is None:
         raise UserError("The game hasn't started")
-    events = room.game.handle_action(seat.id, data.get("action"))
-    events += check_only_bots_left(room)
-    broadcast(room, events)
-    schedule_bots(room)
+    if room.results:
+        raise UserError("Wait for the next round to start")
+    after_moves(room, room.game.handle_action(seat.id, data.get("action")))
+
+
+@handler("ready")
+def ready(data):
+    room, seat = caller()
+    if not room.results:
+        return
+    room.results["ready"].add(seat.id)
+    if everyone_ready(room):
+        end_results(room)
+    else:
+        broadcast(room)
 
 
 @handler("back_to_lobby")
@@ -526,6 +630,7 @@ def back_to_lobby(data):
     if room.game is None:
         raise UserError("You're already in the lobby")
     room.game = None
+    room.results = None
     for s in list(room.seats):
         s.taken_over = False
         if s.kind == "human" and s.sid is None:   # gone: free their seat

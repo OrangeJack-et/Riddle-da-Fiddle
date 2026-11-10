@@ -55,6 +55,7 @@
 
       <div class="table panel">
         <div id="round-label" class="muted"></div>
+        <div id="deck" class="deck hidden" aria-hidden="true"></div>
         <div id="current-guess" class="current-guess"></div>
         <div id="status-line" class="status-line"></div>
 
@@ -98,6 +99,11 @@
       </div>
     </section>
   </main>
+
+  <!-- Round results: shown after every fiddle/riddle until everyone's ready (or the timer ends) -->
+  <div id="results" class="results-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="results-title">
+    <div id="results-box" class="results-box"></div>
+  </div>
 
   <div id="toast" class="toast hidden" role="status"></div>
 

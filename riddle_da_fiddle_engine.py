@@ -150,6 +150,10 @@ class Game:
                 return candidate
         return index
 
+    def cards_in_play(self):
+        """Cards in everyone's hands this round: the biggest guess allowed."""
+        return sum(len(p.hand) for p in self.active_players())
+
     def _total_of_type(self, card_type):
         return sum(p.count_type(card_type) for p in self.active_players())
 
@@ -242,10 +246,12 @@ class Game:
         if card_type not in CARD_TYPES:
             raise IllegalAction("Card type must be lower, middle or face")
         quantity = action.get("quantity")
-        if isinstance(quantity, str) and quantity.strip().lstrip("-").isdigit():
+        if isinstance(quantity, str) and quantity.strip().lstrip("-").isdigit() and len(quantity.strip()) <= 4:
             quantity = int(quantity)
         if not isinstance(quantity, int) or isinstance(quantity, bool):
             raise IllegalAction("Quantity must be a whole number")
+        if quantity > self.cards_in_play():
+            raise IllegalAction("There are only " + str(self.cards_in_play()) + " cards in play")
         if not is_higher_guess(card_type, quantity, self.current_guess):
             raise IllegalAction("Not a legal guess: it must be higher than the previous guess")
 
@@ -372,6 +378,7 @@ class Game:
     def _finish_round(self, result):
         # Reveal every hand from the round that just ended.
         result["hands"] = {p.id: [dict(c) for c in p.hand] for p in self.players if p.hand}
+        result["card_counts_before"] = {p.id: p.card_count - result["change"].get(p.id, 0) for p in self.players}
         result["card_counts"] = {p.id: max(p.card_count, 0) for p in self.players}
         result["round"] = self.round_number
         self.last_round = result
@@ -431,6 +438,7 @@ class Game:
                 }
                 for p in self.players
             ],
+            "cards_in_play": self.cards_in_play(),
             "current_player": current.id if current else None,
             "current_guess": dict(self.current_guess) if self.current_guess else None,
             "your_turn": my_turn,
