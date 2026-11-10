@@ -249,3 +249,99 @@ li.rules-example { margin-left: -20px; }
   .room-code { font-size: 2rem; }
   .current-guess { font-size: 1.4rem; }
 }
+
+/* ================================================================
+   Pixel skin: frames and buttons from Quintino Pixels' Fantasy UI
+   pack (CC0), drawn at 2x with crisp pixels. Each piece is a
+   stretchable 9-slice frame (border-image), so it fits any size.
+   ================================================================ */
+body { font-family: "Pixelify Sans", system-ui, sans-serif; font-variant-ligatures: none; }
+button, input, select { font-variant-ligatures: none; }
+
+/* parchment: home, lobby, hand, last reveal, log & chat, results, rules */
+.panel, .results-box, .rules-box {
+  --text: #3b2410; --muted: #7a5536; --panel-border: rgba(90, 50, 20, 0.25);
+  color: var(--text);
+  background: none; border-radius: 0; box-shadow: none;
+  border-style: solid; border-width: 16px;
+  border-image: url("ui/panel_parchment.png") 8 fill / 16px stretch;
+  image-rendering: pixelated;
+  padding: 6px 8px;
+}
+.results-box, .rules-box { padding: 10px 14px 16px; }
+
+/* the table: dark teal felt with the vine-and-gem frame */
+.table.panel {
+  --text: #f4efe3; --muted: #bfe0da; --panel-border: rgba(255, 255, 255, 0.15);
+  border-width: 24px;
+  border-image: url("ui/panel_table.png") 12 fill / 24px stretch;
+  padding: 4px 8px 8px;
+}
+
+/* player seats: wood; whose turn it is gets the gem frame */
+.player {
+  background: none; border-radius: 0;
+  border-style: solid; border-width: 12px;
+  border-image: url("ui/panel_wood.png") 6 fill / 12px stretch;
+  image-rendering: pixelated;
+  padding: 2px 4px;
+}
+.player.current { border-width: 20px; border-image: url("ui/panel_turn.png") 10 fill / 20px stretch; padding: 0; }
+
+/* headings on a little scroll banner */
+.panel > h2, .rules-box h3, .results-headline {
+  display: inline-block; color: #3b2410;
+  border-style: solid; border-width: 8px 12px;
+  border-image: url("ui/banner.png") 4 6 fill / 8px 12px stretch;
+  image-rendering: pixelated;
+  padding: 0 6px 0 12px; margin-bottom: 8px;
+}
+.results-headline { display: block; }
+.rules-summary h3 { margin-top: 6px; }
+
+/* buttons */
+.btn, .btn.ghost, #leave-btn, #rules-btn, #host-game-controls .btn, .rules-close {
+  background: none; border-radius: 0;
+  border-style: solid; border-width: 8px;
+  border-image: url("ui/button_wood.png") 4 fill / 8px stretch;
+  image-rendering: pixelated;
+  color: #fff4e2; padding: 2px 10px; line-height: 1.3;
+}
+.btn:hover:not(:disabled) { background: none; filter: brightness(1.12); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn.primary { border-image-source: url("ui/button_teal.png"); color: #0f302a; }
+.btn.danger, #leave-btn { border-image-source: url("ui/button_red.png"); color: #fff; }
+#leave-btn:hover { background: none; }
+.btn.gold { border-image-source: url("ui/button_gold.png"); color: #3b2410; }
+.btn.small, #rules-btn, #music-btn, #leave-btn { border-width: 6px; border-image-width: 6px; padding: 0 6px; font-size: 0.9rem; }
+.btn.selected { outline: 3px solid #fff3dc; outline-offset: 2px; }
+
+/* readable colours on parchment */
+.room-code { color: #b8430a; }
+.badge { background: rgba(0, 0, 0, 0.14); }
+.player .badge, .table .badge { background: rgba(255, 255, 255, 0.18); }
+.badge.host { background: var(--accent); color: #2b2210; }
+.badge.bot { background: #5a6fa8; color: #fff; }
+.badge.hacker { background: #8a3fa0; color: #fff; }
+.badge.warn { background: var(--danger); color: #fff; }
+.log li.chat { color: #2b1608; background: rgba(0, 0, 0, 0.07); }
+.change.minus { color: #b3261e; }
+.change.plus { color: #2e7d32; }
+.rules-moves dt { color: #2b1608; }
+.rules-moves dt.fiddle { color: #b3261e; }
+.rules-moves dt.riddle { color: #a0600a; }
+.rules-example { background: rgba(0, 0, 0, 0.05); border-left-color: #b8430a; }
+.rules-summary { background: rgba(0, 0, 0, 0.06); }
+.rules-credits a { color: #8a3a08; }
+.key { background: #fff9ef; }
+
+/* results countdown: dark slider track with a teal fill */
+.results-bar { height: 8px; border-radius: 0; background: #2e222f; }
+.results-bar-fill { background: #30e1b9; }
+
+@media (max-width: 520px) {
+  .panel, .results-box, .rules-box { border-width: 12px; border-image-width: 12px; }
+  .table.panel { border-width: 18px; border-image-width: 18px; }
+}
+.topbar-buttons .btn { white-space: nowrap; }
+@media (max-width: 520px) { .topbar h1 { font-size: 1.2rem; } }
