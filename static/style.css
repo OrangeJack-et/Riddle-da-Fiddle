@@ -345,3 +345,36 @@ button, input, select { font-variant-ligatures: none; }
 }
 .topbar-buttons .btn { white-space: nowrap; }
 @media (max-width: 520px) { .topbar h1 { font-size: 1.2rem; } }
+
+/* ================================================================
+   Forest background: Forest Background by Luis Zuno (ansimuz), CC0.
+   Four 272x160 layers stacked; each loops sideways (drift) at its own
+   speed, and shifts up a little as you scroll (parallax). Layers are
+   106vh tall so the scroll shift never shows a gap; one tile is then
+   272/160 * 106vh = 180.2vh wide.
+   ================================================================ */
+#forest { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+#forest .layer {
+  position: absolute; left: 0; top: -3vh; height: 106vh; width: 100%;
+  transform: translateY(max(-3vh, calc(var(--scroll, 0) * var(--depth) * -1px)));
+  will-change: transform;
+}
+#forest .strip {
+  height: 100%; width: calc(100vw + 180.2vh);
+  background-repeat: repeat-x; background-size: auto 100%; background-position: 0 0;
+  image-rendering: pixelated;
+  animation: forest-drift var(--speed) linear infinite;
+  will-change: transform;
+}
+@keyframes forest-drift { to { transform: translateX(-180.2vh); } }
+#forest .vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(20, 8, 2, 0.05) 40%, rgba(20, 8, 2, 0.55) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  #forest .strip { animation: none; }
+  #forest .layer { transform: none; }
+}
+
+/* text sitting straight on the forest */
+.topbar h1 { color: #fff4e2; text-shadow: 2px 2px 0 #2b1608; }

@@ -10,6 +10,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <!-- Forest background (Luis Zuno / ansimuz, CC0): 4 looping layers that drift sideways and shift a little on scroll -->
+  <div id="forest" aria-hidden="true">
+    <div class="layer" style="--depth: 0.02"><div class="strip" style="background-image: url('{{ url_for('static', filename='bg/forest-back.png') }}'); --speed: 240s"></div></div>
+    <div class="layer" style="--depth: 0.03"><div class="strip" style="background-image: url('{{ url_for('static', filename='bg/forest-lights.png') }}'); --speed: 180s"></div></div>
+    <div class="layer" style="--depth: 0.05"><div class="strip" style="background-image: url('{{ url_for('static', filename='bg/forest-middle.png') }}'); --speed: 120s"></div></div>
+    <div class="layer" style="--depth: 0.08"><div class="strip" style="background-image: url('{{ url_for('static', filename='bg/forest-front.png') }}'); --speed: 80s"></div></div>
+    <div class="vignette"></div>
+  </div>
   <header class="topbar">
     <h1>Riddle-da-Fiddle <span aria-hidden="true">🎻</span></h1>
     <div class="topbar-buttons">
@@ -224,6 +232,7 @@
         Card art: <a href="https://jfredd.itch.io/pixel-cards" target="_blank" rel="noopener">Pixel Cards by Jfred</a> (CC0).
         Joker violin: from the <a href="https://k4nnx.itch.io/16-pixel-art-musical-instruments-sprites-pack-32x32" target="_blank" rel="noopener">16 Pixel Art Musical Instruments pack by K4nnx</a>.<br>
         Frames and buttons: <a href="https://quintino-pixels.itch.io/pixel-art-ui-elements" target="_blank" rel="noopener">Pixel Art Fantasy UI Pack by Quintino Pixels</a> (CC0).
+        Background: <a href="https://opengameart.org/content/forest-background" target="_blank" rel="noopener">Forest Background by Luis Zuno (ansimuz)</a> (CC0).
         Font: <a href="https://fonts.google.com/specimen/Pixelify+Sans" target="_blank" rel="noopener">Pixelify Sans</a> (Open Font License).</p>
     </article>
   </div>

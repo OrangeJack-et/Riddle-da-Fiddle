@@ -529,6 +529,17 @@ $("copy-link-btn").onclick = async () => {
   try { await navigator.clipboard.writeText(link); toast("Invite link copied"); } catch { toast(link); }
 };
 
+// forest background: nearer layers shift a little more as you scroll (parallax)
+let scrollQueued = false;
+addEventListener("scroll", () => {
+  if (scrollQueued) return;
+  scrollQueued = true;
+  requestAnimationFrame(() => {
+    document.documentElement.style.setProperty("--scroll", Math.min(scrollY, 3000));
+    scrollQueued = false;
+  });
+}, { passive: true });
+
 // background music (starts on the first click: browsers block sound until you interact)
 const music = $("music");
 music.volume = 0.3;
