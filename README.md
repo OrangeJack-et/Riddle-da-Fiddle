@@ -4,14 +4,30 @@
 
 ## Status
 
-This is a **terminal prototype**: the game is played by typing into the command line, with all players sharing one computer. A **multiplayer web version** is in progress.
+A **multiplayer web version** is in progress. The game logic is ready for it; the server and website come next.
+
+## Files
+
+| File | What it is |
+|------|------------|
+| `riddle_da_fiddle_desktop.py` | The original terminal game, driven by `input()`. Kept as-is. |
+| `riddle_da_fiddle_engine.py` | Web-ready game engine with the same rules: no `input()`/`print()`, driven by player actions, returns events and per-player views. |
+| `play_engine_in_terminal.py` | Plays the web-ready engine in the terminal, for testing it without the website. |
 
 ## How to run
 
-Requires Python 3 (no extra packages).
+Requires Python 3 (no extra packages). Everyone shares one computer.
+
+Original version:
 
 ```
-python riddle_da_fiddle.py
+python riddle_da_fiddle_desktop.py
+```
+
+Web-ready engine, in the terminal:
+
+```
+python play_engine_in_terminal.py
 ```
 
 ## Rules
@@ -29,7 +45,9 @@ Every card belongs to one or more **types**:
 | Face   | Jack, Queen, King |
 
 - **Aces are wild**: they count as Lower, Middle *and* Face.
-- **Jokes functionality yet to be added.**.
+- **Jokers** are flexible:
+  - On a **fiddle**, each player holding jokers chooses how many of them count towards the guessed type.
+  - On a **riddle**, jokers can count as any number from none to all of them, so the riddle is correct if the guess falls in that range.
 
 ### Setup
 
@@ -59,7 +77,7 @@ Players with no cards left are eliminated. The **last player with cards wins**.
 
 ## Plans
 
-- [ ] Restructure the game logic so it's driven by player actions rather than terminal input
+- [x] Restructure the game logic so it's driven by player actions rather than terminal input
 - [ ] Multiplayer web version (Python backend, browser frontend)
 - [ ] Game rooms / lobby codes so friends can play together online
 - [ ] Graphics and a violin-themed look 🎻
