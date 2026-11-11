@@ -468,7 +468,7 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 /* splash text (like Minecraft's): tilted, yellow, gently pulsing, on the logo's corner */
 .logo-wrap { position: relative; display: inline-block; }
 .splash {
-  position: absolute; left: 80%; top: 8px; transform-origin: left center;   /* top-right corner, by RIDDLE */
+  position: absolute; right: 80%; top: 8px; transform-origin: right center;   /* top-left corner, ending by the start of RIDDLE */
   transform: rotate(-16deg); white-space: nowrap; color: #ffef3a; letter-spacing: 0.02em;
   text-shadow: 2px 2px 0 #3d2a00;
   animation: splash-pulse 0.9s ease-in-out infinite alternate;
@@ -476,7 +476,7 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 }
 @keyframes splash-pulse { from { transform: rotate(-16deg) scale(1); } to { transform: rotate(-16deg) scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .splash { animation: none; } }
-@media (max-width: 520px) { .splash { left: auto; right: -4px; top: -6px; transform-origin: right center; } }
+@media (max-width: 520px) { .splash { right: auto; left: -4px; top: 40px; transform-origin: left center; } }
 
 /* big monitors: the home screen (logo + create/join) is scaled up 125%; the game screens stay as they are */
 @media (min-width: 1400px) {

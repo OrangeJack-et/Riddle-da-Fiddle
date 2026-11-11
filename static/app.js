@@ -189,7 +189,7 @@ function winCallouts(game, forLog = false) {
   const tone = forLog ? "neutral" : won ? "green" : "red";
   const out = [{ tone, text: won || forLog ? "LAST FIDDLER STANDING!" : `${nameOf(w).toUpperCase()} IS THE LAST FIDDLER STANDING` }];
   if (winner && winner.card_count === 1) out.push({ tone, text: "WON BY A STRING!" });
-  if (game.winner_flawless) out.push({ tone, text: "…are you a hacker bot?" });
+  if (game.winner_flawless) out.push({ tone, text: "HARDCORE" });   // won without ever losing a card
   const streak = state.win_streak;   // 3+ games won in a row in this lobby
   if (streak && streak.seat === w && streak.count >= 3) out.push({ tone, text: "GET THIS MAN IN PLAYOFFS" });
   return out;
