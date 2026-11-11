@@ -621,6 +621,17 @@ addEventListener("scroll", () => {
   });
 }, { passive: true });
 
+// splash text: a random line from static/splashes.txt (one per line) next to the logo
+fetch("/static/splashes.txt").then((r) => (r.ok ? r.text() : "")).then((text) => {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return;
+  const line = lines[Math.floor(Math.random() * lines.length)];
+  const el = $("splash");
+  el.textContent = line;
+  el.style.fontSize = `${Math.max(13, 24 - Math.max(0, line.length - 14) * 0.5)}px`;   // long lines shrink
+  el.classList.remove("hidden");
+}).catch(() => { /* no splash: fine */ });
+
 // background music (starts on the first click: browsers block sound until you interact)
 const music = $("music");
 music.volume = 0.3;

@@ -33,7 +33,13 @@
   <main>
     <!-- Home: create or join -->
     <!-- Big logo on the home screen (placeholder until Jack's own logo) -->
-    <div id="home-logo" class="home-logo"><img src="{{ url_for('static', filename='ui/logo.png') }}" alt="Riddle-da-Fiddle"></div>
+    <div id="home-logo" class="home-logo">
+      <div class="logo-wrap">
+        <img src="{{ url_for('static', filename='ui/logo.png') }}" alt="Riddle-da-Fiddle">
+        <!-- splash text: a random line from static/splashes.txt each visit -->
+        <div id="splash" class="splash hidden" aria-hidden="true"></div>
+      </div>
+    </div>
 
     <section id="screen-home" class="screen panel narrow">
       <label class="field">Your name
