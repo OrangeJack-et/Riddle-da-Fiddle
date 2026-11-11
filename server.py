@@ -558,18 +558,35 @@ def leave(data):
         schedule_bots(room)
 
 
+def load_stickers():
+    """Sticker names from static/stickers/stickers.txt (one per line, # = comment) that have a PNG."""
+    folder = os.path.join(app.static_folder, "stickers")
+    try:
+        with open(os.path.join(folder, "stickers.txt"), encoding="utf-8") as f:
+            names = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    except OSError:
+        return []
+    return [n for n in names if os.path.isfile(os.path.join(folder, n + ".png"))]
+
+
+STICKERS = load_stickers()
+
+
 @handler("chat")
 def chat(data):
     room, seat = caller()
     text = " ".join(str(data.get("text") or "").split())[:MAX_CHAT_LENGTH]
-    if not text:
+    sticker = data.get("sticker")
+    if sticker is not None and sticker not in STICKERS:   # only stickers from the official list
+        raise UserError("Unknown sticker")
+    if not text and not sticker:
         return
     now = time.time()
     seat.chat_times = [t for t in seat.chat_times if now - t < CHAT_WINDOW]
     if len(seat.chat_times) >= CHAT_BURST:
         raise UserError("Slow down a bit!")
     seat.chat_times.append(now)
-    message = {"player": seat.id, "name": seat.name, "text": text}
+    message = {"player": seat.id, "name": seat.name, "text": "" if sticker else text, "sticker": sticker}
     for s in room.seats:
         if s.sid:
             socketio.emit("chat", message, to=s.sid)
@@ -678,7 +695,7 @@ def back_to_lobby(data):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", stickers=STICKERS)
 
 
 @app.route("/healthz")

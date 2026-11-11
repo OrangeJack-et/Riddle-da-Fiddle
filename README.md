@@ -47,6 +47,7 @@ python play_engine_in_terminal.py
 - **Round results:** after each fiddle or riddle, a results screen stays up for 10 seconds (or until everyone clicks Ready). Nobody, bots included, can move until it closes.
 - **Rule book:** the 📖 Rules button in the top bar opens the full rules on any screen, even mid-game.
 - **Music:** background violin starts on your first click; 🔊 in the top bar mutes it (remembered per browser). Replace `static/audio/vivaldi-winter.*` to change the track.
+- **Stickers:** the smiley button next to Send opens a sticker picker. Stickers live in `static/stickers/`: add a small PNG and its name to `stickers.txt` (the server only accepts stickers on that list).
 - **Chat:** messages go in the log; a pop-up shows new ones when the log is off screen.
 - **Limits:** one address can create 5 games every 10 minutes, and at most 200 games can be open at once.
 - **Only bots left:** if no human is left playing, the game ends and the bot with the most cards wins. Two Hacker bots would otherwise riddle forever.

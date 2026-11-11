@@ -138,8 +138,13 @@
     <section id="chat-panel" class="panel hidden">
       <h2>Log &amp; chat</h2>
       <ol id="log" class="log"></ol>
+      <!-- sticker picker (stickers listed in static/stickers/stickers.txt) -->
+      <div id="sticker-picker" class="sticker-picker hidden" role="dialog" aria-label="Stickers">
+        {% for s in stickers %}<button type="button" class="sticker-choice" data-sticker="{{ s }}" title="{{ s.replace('-', ' ') }}"><img src="{{ url_for('static', filename='stickers/' + s + '.png') }}" alt="{{ s.replace('-', ' ') }}"></button>{% endfor %}
+      </div>
       <form id="chat-form" class="row chat-form" autocomplete="off">
         <input id="chat-input" maxlength="200" placeholder="Say something…" aria-label="Chat message">
+        <button id="sticker-btn" class="btn icon-btn" type="button" aria-label="Stickers" title="Stickers"><img class="px-icon" src="{{ url_for('static', filename='ui/icon-sticker.png') }}" alt=""></button>
         <button class="btn primary" type="submit">Send</button>
       </form>
     </section>

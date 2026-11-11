@@ -1,0 +1,18 @@
+# Stickers shown in the chat picker, in this order. Each name is a PNG in this folder.
+laughing
+grinning
+evil-laugh
+angry
+sad
+shocked
+sleeping
+tongue-out
+thumbs-up
+thumbs-down
+high-five
+wave
+winner-badge
+black-joker
+red-joker
+ace-of-spades
+card-back

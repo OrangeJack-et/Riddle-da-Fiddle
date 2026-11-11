@@ -156,7 +156,12 @@ socket.on("chat", (msg) => {
   const who = document.createElement("b");
   who.textContent = `${msg.name}: `;
   who.style.color = nameColor(msg.name);
-  li.append(who, document.createTextNode(msg.text));
+  if (msg.sticker) {
+    li.classList.add("sticker-line");
+    li.append(who, Object.assign(document.createElement("img"), { src: `/static/stickers/${msg.sticker}.png`, alt: msg.sticker.replace(/-/g, " "), className: "sticker" }));
+  } else {
+    li.append(who, document.createTextNode(msg.text));
+  }
   addLogLine(li);
   if (msg.player !== state?.you) chatBubble(msg);
 });
@@ -167,7 +172,8 @@ function chatBubble(msg) {
   const logVisible = rect.top >= 0 && rect.bottom <= innerHeight && !state?.results;
   if (logVisible) return;
   const el = $("chat-bubble");
-  el.textContent = `💬 ${msg.name}: ${msg.text}`;
+  el.textContent = `💬 ${msg.name}: ${msg.sticker ? "" : msg.text}`;
+  if (msg.sticker) el.append(Object.assign(document.createElement("img"), { src: `/static/stickers/${msg.sticker}.png`, alt: "sticker", className: "sticker small" }));
   el.classList.remove("hidden");
   clearTimeout(chatBubble.timer);
   chatBubble.timer = setTimeout(() => el.classList.add("hidden"), 4000);
@@ -742,6 +748,15 @@ $("rules-btn").onclick = openRules;
 $("rules-close").onclick = closeRules;
 $("rules").addEventListener("click", (e) => { if (e.target === $("rules")) closeRules(); });   // tap outside the box
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && rulesOpen()) closeRules(); });
+
+// stickers: the button opens the picker; picking one sends it and closes the picker
+$("sticker-btn").onclick = () => $("sticker-picker").classList.toggle("hidden");
+for (const b of document.querySelectorAll(".sticker-choice")) {
+  b.onclick = () => { send("chat", { sticker: b.dataset.sticker }); $("sticker-picker").classList.add("hidden"); };
+}
+document.addEventListener("click", (e) => {   // tap anywhere else to close it
+  if (!e.target.closest("#sticker-picker, #sticker-btn")) $("sticker-picker").classList.add("hidden");
+});
 
 $("chat-form").onsubmit = (e) => {
   e.preventDefault();
