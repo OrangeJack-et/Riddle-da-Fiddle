@@ -140,7 +140,7 @@ input, select {
 .card.small { --card-w: 50px; }
 .reveal-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
 .reveal-row .who { width: 110px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.reveal-row .cards { display: flex; flex-wrap: wrap; gap: 4px; }
+.reveal-row .cards { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* dealing animation */
 .deck, .fly-card {
@@ -176,7 +176,7 @@ input, select {
 .key.joker { outline: 3px solid #b48ae0; margin-left: 10px; }
 .result-row { padding: 10px 0; border-top: 1px solid var(--panel-border); }
 .result-who { margin-bottom: 6px; }
-.result-row .cards { display: flex; flex-wrap: wrap; gap: 4px; }
+.result-row .cards { display: flex; flex-wrap: wrap; gap: 10px; }   /* room for the 3px outlines */
 .card.match { outline: 3px solid var(--accent); outline-offset: 1px; }
 .card.joker { outline: 3px solid #b48ae0; outline-offset: 1px; }
 .card.dim { opacity: 0.45; }
@@ -255,7 +255,17 @@ li.rules-example { margin-left: -20px; }
    pack (CC0), drawn at 2x with crisp pixels. Each piece is a
    stretchable 9-slice frame (border-image), so it fits any size.
    ================================================================ */
-body { font-family: "Pixelify Sans", system-ui, sans-serif; font-variant-ligatures: none; }
+/* Numbers in Jersey 10 (clearer 5s etc.), letters in Pixelify Sans. Jersey's digits are drawn
+   smaller, so "RDF Digits" scales them 120% to match Pixelify's height; if that file ever moves,
+   the plain "Jersey 10" from the Google Fonts link (digits only) takes over. */
+@font-face {
+  font-family: "RDF Digits";
+  src: url("https://fonts.gstatic.com/l/font?kit=GftH7vZKsggXMf9n_J5X_Yru82wHeSnKSPqNJA&skey=7263aaef656350ce&v=v4") format("woff2");
+  unicode-range: U+30-39;
+  size-adjust: 120%;
+  font-display: swap;
+}
+body { font-family: "RDF Digits", "Jersey 10", "Pixelify Sans", system-ui, sans-serif; font-variant-ligatures: none; }
 button, input, select { font-variant-ligatures: none; }
 
 /* parchment: home, lobby, hand, last reveal, log & chat, results, rules */
@@ -403,3 +413,7 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 .logo-small { width: 182px; height: auto; display: block; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45)); }
 .topbar-buttons { margin-left: auto; }   /* stay on the right even when the title is hidden */
 @media (max-width: 520px) { .logo-small { width: 130px; } }
+
+/* joker choice: what happened and what your choice does */
+.joker-context { font-size: 1.1rem; margin-bottom: 4px; }
+.joker-tip { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }

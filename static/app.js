@@ -265,7 +265,10 @@ function renderGame() {
     if (g) status = `${nameOf(g.player_id)} guessed. ` + status;
     if (deal) status = "Dealing…";
   } else if (game.phase === "choosing_jokers") {
-    status = `Waiting for ${game.waiting_for_jokers.map(nameOf).join(", ")} to choose jokers…`;
+    const f = game.fiddle;
+    status = (f && g ? `${nameOf(f.fiddler)} fiddled ${nameOf(f.guesser)}'s ${guessText(g)} · ` : "") +
+      `waiting for ${game.waiting_for_jokers.map(nameOf).join(", ")} to choose jokers…`;
+    if (game.waiting_for_jokers.includes(state.you)) status = "";   // the joker chooser below already says it all
   }
   $("status-line").textContent = status;
 
@@ -292,7 +295,14 @@ function renderGame() {
   $("joker-chooser").classList.toggle("hidden", !chooseJokers);
   if (chooseJokers) {
     const buttons = Array.from({ length: game.your_jokers + 1 }, (_, n) => `<button class="btn" data-jokers="${n}">${n}</button>`).join("");
-    $("joker-chooser").innerHTML = `<div>You have ${game.your_jokers} joker${game.your_jokers === 1 ? "" : "s"}. How many count towards ${esc(g.card_type)}?</div><div class="row">${buttons}</div>`;
+    const f = game.fiddle;
+    const who = (id) => (id === state.you ? "your" : `${esc(nameOf(id))}'s`);
+    const what = f ? `<div class="joker-context"><b>${f.fiddler === state.you ? "You" : esc(nameOf(f.fiddler))}</b> fiddled <b>${who(f.guesser)}</b> guess of <b>${guessText(g)}</b>.</div>` : "";
+    const tip = !f ? "" : f.guesser === state.you ? "Count your jokers to help make your guess true."
+      : f.fiddler === state.you ? "Count fewer jokers to help prove the guess wrong."
+      : "You're not in this one, but your choice can tip it either way.";
+    $("joker-chooser").innerHTML = `${what}<div>You have ${game.your_jokers} joker${game.your_jokers === 1 ? "" : "s"}. How many count towards ${esc(g.card_type)}?</div>` +
+      (tip ? `<div class="joker-tip">${tip}</div>` : "") + `<div class="row">${buttons}</div>`;
   }
 
   // game over

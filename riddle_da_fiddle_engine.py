@@ -444,6 +444,10 @@ class Game:
             "your_turn": my_turn,
             "can_guess": my_turn,
             "can_fiddle_or_riddle": my_turn and self.current_guess is not None,
+            "fiddle": (
+                {"fiddler": pending["fiddler_id"], "guesser": pending["guesser_id"]}
+                if pending and self.phase == PHASE_CHOOSING_JOKERS else None
+            ),
             "waiting_for_jokers": (
                 [pid for pid in pending["waiting_for"] if pid not in pending["choices"]]
                 if pending and self.phase == PHASE_CHOOSING_JOKERS else []
