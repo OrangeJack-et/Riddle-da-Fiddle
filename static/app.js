@@ -157,7 +157,7 @@ function describe(e) {
           (e.at_cap ? " but is already at the maximum of 8 cards." : " and gains a card.")
         : `There were ${e.count}, not ${e.guess.quantity}. ${nameOf(e.caller)} riddled wrong and loses 2 cards.`;
     case "player_eliminated": return `${nameOf(e.player)} is out!`;
-    case "game_won": return e.early ? `${e.reason}: ${nameOf(e.player)} wins with the most cards.` : `🎻 ${nameOf(e.player)} wins the game!`;
+    case "game_won": return e.early ? `${e.reason}: ${nameOf(e.player)} wins with the most cards.` : `${nameOf(e.player)} wins the game!`;
     case "bot_took_over": return `A bot is playing for ${nameOf(e.player)} until they're back.`;
     case "player_returned": return `${nameOf(e.player)} is back!`;
     case "player_left": return `${e.name} left. A bot has their seat.`;
@@ -172,6 +172,10 @@ function logEvent(event) {
   if (!text) return;
   const li = document.createElement("li");
   li.textContent = text;
+  if (event.type === "game_won") {   // winner badge in front of the victory line
+    li.classList.add("win-line");
+    li.prepend(Object.assign(document.createElement("img"), { src: "/static/ui/winner-badge.png", alt: "", className: "badge-img small" }));
+  }
   addLogLine(li);
 }
 
@@ -309,7 +313,7 @@ function renderGame() {
   const over = game.phase === "game_over";
   $("game-over").classList.toggle("hidden", !over);
   if (over) {
-    $("game-over").innerHTML = `🎻 ${esc(nameOf(game.winner))} wins!` +
+    $("game-over").innerHTML = `<img class="badge-img" src="/static/ui/winner-badge.png" alt=""><div>${esc(nameOf(game.winner))} wins!</div>` +
       (state.is_host ? `<div><button class="btn primary" id="lobby-btn">Back to lobby</button></div>` : `<div class="muted">Waiting for the host…</div>`);
   }
   $("host-game-controls").classList.toggle("hidden", !state.is_host || over);

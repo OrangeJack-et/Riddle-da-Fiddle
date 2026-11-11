@@ -417,3 +417,8 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 /* joker choice: what happened and what your choice does */
 .joker-context { font-size: 1.1rem; margin-bottom: 4px; }
 .joker-tip { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+/* winner badge (K4nnx violin on Quintino's gem frame, one combined image) */
+.badge-img { width: 96px; height: auto; image-rendering: pixelated; display: block; margin: 0 auto 6px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45)); }
+.badge-img.small { width: 32px; display: inline-block; vertical-align: middle; margin: 0 6px 0 0; filter: none; }
+.log li.win-line { font-weight: 700; }
