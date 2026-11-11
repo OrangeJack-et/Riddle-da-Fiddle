@@ -255,17 +255,30 @@ li.rules-example { margin-left: -20px; }
    pack (CC0), drawn at 2x with crisp pixels. Each piece is a
    stretchable 9-slice frame (border-image), so it fits any size.
    ================================================================ */
-/* Numbers in Jersey 10 (clearer 5s etc.), letters in Pixelify Sans. Jersey's digits are drawn
-   smaller, so "RDF Digits" scales them 120% to match Pixelify's height; if that file ever moves,
-   the plain "Jersey 10" from the Google Fonts link (digits only) takes over. */
+/* Font: Jersey 10 (Google Fonts, Open Font License) for everything.
+   It's drawn smaller than most fonts, so "RDF Jersey" scales it 115% to keep the
+   site's sizes the same; if those files ever move, the plain "Jersey 10" from the
+   Google Fonts link takes over (just a little smaller).
+   It only has one weight, so fake bold is switched off and bold text uses colour instead. */
 @font-face {
-  font-family: "RDF Digits";
-  src: url("https://fonts.gstatic.com/l/font?kit=GftH7vZKsggXMf9n_J5X_Yru82wHeSnKSPqNJA&skey=7263aaef656350ce&v=v4") format("woff2");
-  unicode-range: U+30-39;
-  size-adjust: 120%;
+  font-family: "RDF Jersey";
+  src: url("https://fonts.gstatic.com/s/jersey10/v4/GftH7vZKsggXMf9n_J5n_5jh.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  size-adjust: 115%;
   font-display: swap;
 }
-body { font-family: "RDF Digits", "Jersey 10", "Pixelify Sans", system-ui, sans-serif; font-variant-ligatures: none; }
+@font-face {
+  font-family: "RDF Jersey";
+  src: url("https://fonts.gstatic.com/s/jersey10/v4/GftH7vZKsggXMf9n_J5n8Zjh-1w.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  size-adjust: 115%;
+  font-display: swap;
+}
+body { font-family: "RDF Jersey", "Jersey 10", system-ui, sans-serif; font-variant-ligatures: none; font-synthesis: none; letter-spacing: 0.02em; }
+/* bold text: a stronger colour instead of smeared fake bold */
+b, strong { font-weight: normal; color: var(--strong, #fff); }
+.panel, .results-box, .rules-box { --strong: #1a0b02; }
+.table.panel, .player { --strong: #ffffff; }
 button, input, select { font-variant-ligatures: none; }
 
 /* parchment: home, lobby, hand, last reveal, log & chat, results, rules */
