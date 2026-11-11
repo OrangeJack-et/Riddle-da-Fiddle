@@ -130,6 +130,9 @@ class Game:
         # card type is locked for everyone for the rest of that round.
         self.last_stand_player = None   # id of the player on their last stand this round
         self.last_stand_type = None     # the locked card type (set by the round's first guess)
+        # Round-win streaks (for the "hacking noises" callout): a player's streak goes up when they
+        # win a round they're in, resets when they lose one, and is untouched by rounds they're not in.
+        self.round_streaks = {pid: 0 for pid in player_ids}
 
     # ------------------------------------------------------------ helpers
 
@@ -395,6 +398,18 @@ class Game:
         result["card_counts_before"] = {p.id: p.card_count - result["change"].get(p.id, 0) for p in self.players}
         result["card_counts"] = {p.id: max(p.card_count, 0) for p in self.players}
         result["round"] = self.round_number
+        # who won / lost this round (a wrong riddle has a loser but no winner)
+        if result["kind"] == "fiddle":
+            round_winner, round_loser = result["winner"], result["loser"]
+        elif result["correct"]:
+            round_winner, round_loser = result["caller"], result["guesser"]
+        else:
+            round_winner, round_loser = None, result["caller"]
+        if round_winner:
+            self.round_streaks[round_winner] += 1
+        self.round_streaks[round_loser] = 0
+        result["round_winner"] = round_winner
+        result["winner_streak"] = self.round_streaks[round_winner] if round_winner else 0
         self.last_round = result
         self.pending_fiddle = None
 

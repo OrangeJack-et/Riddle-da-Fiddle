@@ -107,6 +107,8 @@ class Room:
         self.results = None
         self.results_generation = 0
         self.deal_until = 0                 # time.time() the dealing animation ends (bots wait for it)
+        # games won in a row in this lobby, by player NAME (so it survives people leaving/rejoining)
+        self.win_streak = {"name": None, "count": 0}
 
     def seat(self, seat_id):
         for seat in self.seats:
@@ -263,6 +265,10 @@ def payload(room, seat, events):
             "ready": sorted(room.results["ready"]),
         } if room.results else None,
         "deal_ms_per_card": DEAL_MS_PER_CARD,
+        "win_streak": {   # tell browsers which seat (if any) currently holds the streak
+            "seat": next((s.id for s in room.seats if room.win_streak["name"] and s.name.lower() == room.win_streak["name"]), None),
+            "count": room.win_streak["count"],
+        },
         "deal_fly_ms": DEAL_FLY_MS,
         "events": events or [],
     }
@@ -294,6 +300,12 @@ def after_moves(room, events, wake_bots=True):
     """Run after any move (human or bot): end bot-only games, put up the
     results screen if a round just finished, tell everyone, wake the bots."""
     events = list(events) + check_only_bots_left(room)
+    for e in events:
+        if e["type"] == "game_won" and not e.get("early"):   # game streaks ("GET THIS MAN IN PLAYOFFS")
+            seat = room.seat(e["player"])
+            name = seat.name.lower() if seat else None
+            same = name is not None and room.win_streak["name"] == name
+            room.win_streak = {"name": name, "count": room.win_streak["count"] + 1 if same else 1}
     if any(e["type"] == "round_result" for e in events):
         start_results(room)
     broadcast(room, events)

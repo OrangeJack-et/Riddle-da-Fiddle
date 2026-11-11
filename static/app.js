@@ -145,31 +145,53 @@ socket.on("disconnect", () => toast("Connection lost, reconnecting…"));
 
 // ------------------------------------------------------------ callouts (big-moment banners)
 
-// For a round result: [{ text, tone }] most important first. forLog = name everyone (no "YOU").
+// Each callout depends on who's looking: the round's winner sees green, the loser red,
+// everyone else a neutral version. forLog = always the neutral version (the log is shared).
+// Returns [{ text, tone }] most important first. tone: green | red | neutral | purple.
 function roundCallouts(r, forLog = false) {
   const out = [];
-  const isMe = (id) => !forLog && id === state.you;
-  const knockedOut = (id) => r.card_counts[id] === 0;
-  if (r.kind === "fiddle" && knockedOut(r.loser)) {
-    if (r.loser === r.guesser) out.push({ tone: "red", text: isMe(r.loser) ? "YOU FIDDLED YOUR LAST FIDDLE!" : `${nameOf(r.loser)} fiddled their last fiddle!` });
-    else out.push({ tone: "red", text: isMe(r.loser) ? "YOU FIDDLED TOO CLOSE TO THE SUN!" : `${nameOf(r.loser)} fiddled too close to the sun!` });
+  const me = forLog ? null : state.you;
+  const out0 = (id) => r.card_counts[id] === 0;
+  const pick = (winnerId, loserId, winnerText, loserText, neutralText) => {
+    if (me && me === winnerId && winnerText) return { tone: "green", text: winnerText };
+    if (me && me === loserId && loserText) return { tone: "red", text: loserText };
+    return { tone: "neutral", text: neutralText };
+  };
+  if (r.kind === "fiddle") {
+    const winnerId = r.winner, loserId = r.loser;
+    if (out0(loserId)) {
+      out.push(loserId === r.guesser
+        ? pick(winnerId, loserId, `YOU KNOCKED ${nameOf(loserId).toUpperCase()} OUT!`, "YOU FIDDLED YOUR LAST FIDDLE!", `${nameOf(loserId)} fiddled their last fiddle!`)
+        : pick(winnerId, loserId, `YOU KNOCKED ${nameOf(loserId).toUpperCase()} OUT!`, "YOU FIDDLED TOO CLOSE TO THE SUN!", `${nameOf(loserId)} fiddled too close to the sun!`));
+    }
+    if (r.count === r.guess.quantity - 1) out.push(pick(r.caller, r.guesser, "YOU JUST GOT THEM!", "SO CLOSE!", "JUST!"));      // fiddle just worked
+    if (r.count === r.guess.quantity) out.push(pick(r.guesser, r.caller, "SPOT ON!", "SO CLOSE!", "SPOT ON!"));                 // guess just held
+  } else if (r.correct) {
+    out.push(pick(r.caller, r.guesser, "RIDDLE-DA-FIDDLE!", "YOU GOT RIDDLED!", "RIDDLE-DA-FIDDLE!"));
+    if (r.at_cap && (!me || me !== r.guesser)) out.push(pick(r.caller, null, "MAXED OUT!", null, "MAXED OUT!"));
+  } else if (out0(r.caller)) {
+    out.push(pick(null, r.caller, null, "YOU AIN'T NO SHERLOCK!", `${nameOf(r.caller)} ain't no Sherlock!`));
   }
-  if (r.kind === "riddle" && !r.correct && knockedOut(r.caller)) {
-    out.push({ tone: "red", text: isMe(r.caller) ? "YOU AIN'T NO SHERLOCK!" : `${nameOf(r.caller)} ain't no Sherlock!` });
+  // 3+ rounds won in a row (only rounds they were in count)
+  if (r.round_winner && r.winner_streak >= 3) {
+    const w = r.round_winner;
+    if (me === w) out.push({ tone: "green", text: "do i hear some hackingnoises?" });
+    else out.push({ tone: forLog ? "neutral" : "red", text: `are you hearing any hacking noises from ${nameOf(w)}?` });
   }
-  if (r.kind === "riddle" && r.correct) out.push({ tone: "gold", text: "RIDDLE-DA-FIDDLE!" });
-  if (r.kind === "riddle" && r.at_cap) out.push({ tone: "gold", text: "MAXED OUT!" });
-  if (r.kind === "fiddle" && Math.abs(r.count - r.guess.quantity) === 1) out.push({ tone: "gold", text: "SO CLOSE!" });
-  if (!forLog && r.card_counts[state.you] === 1 && r.card_counts_before[state.you] > 1) out.push({ tone: "red", text: "HANGING BY A STRING!" });
   return out;
 }
 
 // For the end of the game.
-function winCallouts(game) {
-  const winner = game.players.find((p) => p.id === game.winner);
-  const out = [{ tone: "gold", text: "LAST FIDDLER STANDING!" }];
-  if (winner && winner.card_count === 1) out.push({ tone: "gold", text: "WON BY A STRING!" });
-  if (game.winner_flawless) out.push({ tone: "gold", text: "PERFECT PITCH!" });
+function winCallouts(game, forLog = false) {
+  const w = game.winner;
+  const won = !forLog && state.you === w;
+  const winner = game.players.find((p) => p.id === w);
+  const tone = forLog ? "neutral" : won ? "green" : "red";
+  const out = [{ tone, text: won || forLog ? "LAST FIDDLER STANDING!" : `${nameOf(w).toUpperCase()} IS THE LAST FIDDLER STANDING` }];
+  if (winner && winner.card_count === 1) out.push({ tone, text: "WON BY A STRING!" });
+  if (game.winner_flawless) out.push({ tone, text: "…are you a hacker bot?" });
+  const streak = state.win_streak;   // 3+ games won in a row in this lobby
+  if (streak && streak.seat === w && streak.count >= 3) out.push({ tone, text: "GET THIS MAN IN PLAYOFFS" });
   return out;
 }
 
@@ -215,8 +237,8 @@ function logEvent(event) {
   let extra = [];
   if (event.type === "round_result") extra = roundCallouts(event, true);
   if (event.type === "round_started" && event.last_stand) extra = [{ tone: "purple", text: `${nameOf(event.last_stand)}'s last stand!` }];
-  if (event.type === "guess_made" && state?.game && event.quantity === state.game.cards_in_play) extra = [{ tone: "gold", text: "ALL IN!" }];
-  if (event.type === "game_won" && !event.early && state?.game) extra = winCallouts(state.game);
+  if (event.type === "guess_made" && state?.game && event.quantity === state.game.cards_in_play) extra = [{ tone: "neutral", text: "ALL IN!" }];
+  if (event.type === "game_won" && !event.early && state?.game) extra = winCallouts(state.game, true);
   for (const c of extra) {
     const line = document.createElement("li");
     line.className = `callout-line ${c.tone}`;
@@ -315,7 +337,7 @@ function renderGame() {
     tableCallouts.push({ tone: "purple", text: ls.player === state.you ? "YOUR LAST STAND!" : `${nameOf(ls.player)}'s LAST STAND!` });
     tableCallouts.push({ tone: "purple", text: ls.card_type ? `${cap(ls.card_type)} only this round` : "The first guess locks the card type" });
   }
-  if (g && g.quantity === game.cards_in_play && game.phase !== "game_over") tableCallouts.push({ tone: "gold", text: "ALL IN!" });
+  if (g && g.quantity === game.cards_in_play && game.phase !== "game_over") tableCallouts.push({ tone: "neutral", text: g.player_id === state.you ? "YOU WENT ALL IN!" : "ALL IN!" });
   const tableKey = JSON.stringify(tableCallouts);
   if ($("table-callout").dataset.key !== tableKey) {          // only redraw (and re-animate) when it changes
     $("table-callout").dataset.key = tableKey;

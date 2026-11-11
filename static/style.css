@@ -444,16 +444,17 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
                2px 2px #2b1608, -2px 2px #2b1608, 2px -2px #2b1608, -2px -2px #2b1608, 4px 4px var(--callout-shadow);
   animation: callout-pop 0.45s cubic-bezier(.2, 1.6, .4, 1) both;
 }
-.callout.gold { --callout-shadow: #c45a10; color: #ffe9a8; }
+/* green = you came out on top, red = you lost out, neutral = it's about someone else */
+.callout.green { --callout-shadow: #1f6b2e; color: #d9ffd2; }
 .callout.red { --callout-shadow: #8e1e1e; color: #ffd9d2; }
+.callout.neutral { --callout-shadow: #7a4a1c; color: #fff4e2; }
 .callout.small { font-size: 1.3rem; margin-top: 4px; animation-delay: 0.15s; }
 @keyframes callout-pop { from { transform: scale(0.4) rotate(-4deg); opacity: 0; } to { transform: none; opacity: 1; } }
 #table-callout .callouts { margin: 0 0 4px; }
 #table-callout .callout { font-size: 1.5rem; }
 #table-callout .callout.small { font-size: 1.1rem; }
 .log li.callout-line { list-style: none; margin-left: -20px; font-size: 1.05em; }
-.log li.callout-line.gold { color: #a0600a; }
-.log li.callout-line.red { color: #b3261e; }
+.log li.callout-line.neutral { color: #6a3c10; }
 @media (prefers-reduced-motion: reduce) { .callout { animation: none; } }
 @media (max-width: 520px) { .callout { font-size: 1.6rem; } .callout.small { font-size: 1.1rem; } }
 
@@ -467,7 +468,7 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 /* splash text (like Minecraft's): tilted, yellow, gently pulsing, on the logo's corner */
 .logo-wrap { position: relative; display: inline-block; }
 .splash {
-  position: absolute; left: 82%; bottom: 10px; transform-origin: left center;   /* starts at the end of FIDDLE, rises to the right */
+  position: absolute; left: 80%; top: 8px; transform-origin: left center;   /* top-right corner, by RIDDLE */
   transform: rotate(-16deg); white-space: nowrap; color: #ffef3a; letter-spacing: 0.02em;
   text-shadow: 2px 2px 0 #3d2a00;
   animation: splash-pulse 0.9s ease-in-out infinite alternate;
@@ -475,7 +476,7 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 }
 @keyframes splash-pulse { from { transform: rotate(-16deg) scale(1); } to { transform: rotate(-16deg) scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .splash { animation: none; } }
-@media (max-width: 520px) { .splash { left: auto; right: -4px; bottom: 6px; transform-origin: right center; } }
+@media (max-width: 520px) { .splash { left: auto; right: -4px; top: -6px; transform-origin: right center; } }
 
 /* big monitors: the home screen (logo + create/join) is scaled up 125%; the game screens stay as they are */
 @media (min-width: 1400px) {
