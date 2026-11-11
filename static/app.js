@@ -214,6 +214,7 @@ function logEvent(event) {
   addLogLine(li);
   let extra = [];
   if (event.type === "round_result") extra = roundCallouts(event, true);
+  if (event.type === "round_started" && event.last_stand) extra = [{ tone: "purple", text: `${nameOf(event.last_stand)}'s last stand!` }];
   if (event.type === "guess_made" && state?.game && event.quantity === state.game.cards_in_play) extra = [{ tone: "gold", text: "ALL IN!" }];
   if (event.type === "game_won" && !event.early && state?.game) extra = winCallouts(state.game);
   for (const c of extra) {
@@ -294,7 +295,7 @@ function renderGame() {
         + `<button class="btn ghost small" data-remove="${seat.id}">Kick</button>`
       : "";
     return `
-      <div class="player${isCurrent ? " current" : ""}${p.eliminated ? " out" : ""}">
+      <div class="player${isCurrent ? " current" : ""}${p.eliminated ? " out" : ""}${game.last_stand?.player === seat.id ? " last-stand" : ""}">
         <div class="name">${esc(seat.name)}</div>
         <div>${badges(seat)}</div>
         <div class="meta">${p.eliminated ? "Out" : `${p.card_count} card${p.card_count === 1 ? "" : "s"}`}${isCurrent ? (seat.id === state.you ? " · your turn" : " · their turn") : ""}${waitingJokers ? " · choosing jokers" : ""}</div>
@@ -308,7 +309,18 @@ function renderGame() {
   $("round-label").textContent = `Round ${game.round} · ${game.cards_in_play} cards in play`;
   const g = game.current_guess;
   $("current-guess").textContent = g ? guessText(g) : "No guess yet";
-  $("table-callout").classList.toggle("hidden", !(g && g.quantity === game.cards_in_play && game.phase !== "game_over"));
+  const tableCallouts = [];
+  const ls = game.last_stand;
+  if (ls) {
+    tableCallouts.push({ tone: "purple", text: ls.player === state.you ? "YOUR LAST STAND!" : `${nameOf(ls.player)}'s LAST STAND!` });
+    tableCallouts.push({ tone: "purple", text: ls.card_type ? `${cap(ls.card_type)} only this round` : "The first guess locks the card type" });
+  }
+  if (g && g.quantity === game.cards_in_play && game.phase !== "game_over") tableCallouts.push({ tone: "gold", text: "ALL IN!" });
+  const tableKey = JSON.stringify(tableCallouts);
+  if ($("table-callout").dataset.key !== tableKey) {          // only redraw (and re-animate) when it changes
+    $("table-callout").dataset.key = tableKey;
+    $("table-callout").innerHTML = calloutHtml(tableCallouts);
+  }
   let status = "";
   if (game.phase === "guessing") {
     status = game.your_turn ? "Your turn!" : `Waiting for ${nameOf(game.current_player)}…`;
@@ -451,7 +463,12 @@ function renderResults() {
 
 function renderGuessControls() {
   const g = state.game.current_guess;
-  for (const btn of document.querySelectorAll(".type-btn")) btn.classList.toggle("selected", btn.dataset.type === pickedType);
+  const locked = state.game.last_stand?.card_type;            // Last Stand: only that type is allowed
+  if (locked) pickedType = locked;
+  for (const btn of document.querySelectorAll(".type-btn")) {
+    btn.classList.toggle("selected", btn.dataset.type === pickedType);
+    btn.disabled = Boolean(locked) && btn.dataset.type !== locked;
+  }
   const top = state.game.cards_in_play;   // can't guess more cards than there are
   pickedQty = Math.min(Math.max(pickedQty, minLegalQty(pickedType, g)), top);
   $("qty-value").textContent = pickedQty;

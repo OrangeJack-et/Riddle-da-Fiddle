@@ -57,7 +57,8 @@ def legal_raises(game, previous):
     """(card_type, lowest legal quantity) for every type that can still be
     raised without going over the number of cards in play."""
     top = game.cards_in_play()
-    return [(t, min_legal_quantity(t, previous)) for t in CARD_TYPES
+    types = [game.last_stand_type] if game.last_stand_type else CARD_TYPES   # Last Stand locks the type
+    return [(t, min_legal_quantity(t, previous)) for t in types
             if min_legal_quantity(t, previous) <= top]
 
 
@@ -183,8 +184,7 @@ def _hacker_turn(game, me, rng):
 
     # A raise that's true even if nobody else counts their jokers.
     safe = []
-    for t in CARD_TYPES:
-        q = min_legal_quantity(t, previous)
+    for t, q in legal_raises(game, previous):
         if q <= base[t] + my_jokers:
             safe.append((q, -(base[t] + my_jokers - q), t))
     if safe:

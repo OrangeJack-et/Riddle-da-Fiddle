@@ -115,6 +115,12 @@ If that player was just knocked out, the next player still in the game (going ro
 
 *(The desktop version predates this rule: there, the first player always starts.)*
 
+### Last Stand
+
+Whenever a player drops to **1 card** (from a lost fiddle or a wrong riddle), the next round is their **Last Stand**. They start it, and the **card type of their first guess is locked** for the rest of that round: everyone has to keep guessing that type, just with higher numbers. Fiddling and riddling work as normal. It happens every time someone drops to 1; the round after is back to normal.
+
+*(The desktop version doesn't have this rule.)*
+
 ### Winning
 
 Players with no cards left are eliminated. The **last player with cards wins**.

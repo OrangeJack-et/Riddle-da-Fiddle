@@ -126,6 +126,10 @@ class Game:
         self.last_round = None          # result of the most recent fiddle/riddle
         self.winner_id = None
         self._round_players = set()     # ids of players dealt in this round
+        # Last Stand: the round after a player drops to 1 card, the first guess's
+        # card type is locked for everyone for the rest of that round.
+        self.last_stand_player = None   # id of the player on their last stand this round
+        self.last_stand_type = None     # the locked card type (set by the round's first guess)
 
     # ------------------------------------------------------------ helpers
 
@@ -194,11 +198,13 @@ class Game:
             self.current_index = index
         self.current_guess = None
         self.pending_fiddle = None
+        self.last_stand_type = None
         self.phase = PHASE_GUESSING
         return [{
             "type": "round_started",
             "round": self.round_number,
             "starting_player": self.players[self.current_index].id,
+            "last_stand": self.last_stand_player,
         }]
 
     def handle_action(self, player_id, action):
@@ -253,10 +259,14 @@ class Game:
             raise IllegalAction("Quantity must be a whole number")
         if quantity > self.cards_in_play():
             raise IllegalAction("There are only " + str(self.cards_in_play()) + " cards in play")
+        if self.last_stand_type and card_type != self.last_stand_type:
+            raise IllegalAction("Last Stand! Everyone has to guess " + self.last_stand_type.capitalize() + " this round")
         if not is_higher_guess(card_type, quantity, self.current_guess):
             raise IllegalAction("Not a legal guess: it must be higher than the previous guess")
 
         self.current_guess = {"player_id": player.id, "card_type": card_type, "quantity": quantity}
+        if self.last_stand_player and self.last_stand_type is None:
+            self.last_stand_type = card_type        # the first guess sets the locked type
         self.current_index = self._next_active_index(self.current_index)
         return [{
             "type": "guess_made",
@@ -403,6 +413,10 @@ class Game:
             events.append({"type": "game_won", "player": self.winner_id})
             return events
 
+        # Last Stand: whoever just dropped to exactly 1 card (every time it happens)
+        dropped = [pid for pid, change in result["change"].items()
+                   if change < 0 and self.get_player(pid).card_count == 1]
+        self.last_stand_player = dropped[0] if dropped else None
         return events + self._start_round(result["next_starter"])
 
     def end_early(self, reason=""):
@@ -443,6 +457,10 @@ class Game:
                 for p in self.players
             ],
             "cards_in_play": self.cards_in_play(),
+            "last_stand": (
+                {"player": self.last_stand_player, "card_type": self.last_stand_type}
+                if self.last_stand_player and self.phase in (PHASE_GUESSING, PHASE_CHOOSING_JOKERS) else None
+            ),
             "current_player": current.id if current else None,
             "current_guess": dict(self.current_guess) if self.current_guess else None,
             "your_turn": my_turn,

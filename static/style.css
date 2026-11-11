@@ -448,9 +448,18 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 .callout.red { --callout-shadow: #8e1e1e; color: #ffd9d2; }
 .callout.small { font-size: 1.3rem; margin-top: 4px; animation-delay: 0.15s; }
 @keyframes callout-pop { from { transform: scale(0.4) rotate(-4deg); opacity: 0; } to { transform: none; opacity: 1; } }
-#table-callout { font-size: 1.5rem; margin: -2px 0 4px; }
+#table-callout .callouts { margin: 0 0 4px; }
+#table-callout .callout { font-size: 1.5rem; }
+#table-callout .callout.small { font-size: 1.1rem; }
 .log li.callout-line { list-style: none; margin-left: -20px; font-size: 1.05em; }
 .log li.callout-line.gold { color: #a0600a; }
 .log li.callout-line.red { color: #b3261e; }
 @media (prefers-reduced-motion: reduce) { .callout { animation: none; } }
 @media (max-width: 520px) { .callout { font-size: 1.6rem; } .callout.small { font-size: 1.1rem; } }
+
+/* Last Stand: purple, for the callout, the log line and the player's seat */
+.callout.purple { --callout-shadow: #5b2a8c; color: #efdcff; }
+.log li.callout-line.purple { color: #6b2fa0; }
+.player.last-stand { outline: 3px solid #b77ee8; outline-offset: 2px; box-shadow: 0 0 14px 2px rgba(183, 126, 232, 0.7); animation: last-stand-glow 1.6s ease-in-out infinite; }
+@keyframes last-stand-glow { 50% { box-shadow: 0 0 22px 6px rgba(183, 126, 232, 0.9); } }
+@media (prefers-reduced-motion: reduce) { .player.last-stand { animation: none; } }
