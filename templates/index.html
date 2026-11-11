@@ -20,7 +20,7 @@
     <div class="vignette"></div>
   </div>
   <header class="topbar">
-    <h1>Riddle-da-Fiddle <span aria-hidden="true">🎻</span></h1>
+    <h1 id="topbar-title"><img class="logo-small" src="{{ url_for('static', filename='ui/logo-small.png') }}" alt="Riddle-da-Fiddle"></h1>
     <div class="topbar-buttons">
       <button id="music-btn" class="btn ghost small icon-btn" type="button" aria-label="Mute music" title="Mute music"><img id="music-icon" class="px-icon" src="{{ url_for('static', filename='ui/icon-sound-on.png') }}" alt=""></button>
       <button id="rules-btn" class="btn ghost small icon-btn" type="button"><img class="px-icon" src="{{ url_for('static', filename='ui/icon-book.png') }}" alt=""> Rules</button>
@@ -30,6 +30,9 @@
 
   <main>
     <!-- Home: create or join -->
+    <!-- Big logo on the home screen (placeholder until Jack's own logo) -->
+    <div id="home-logo" class="home-logo"><img src="{{ url_for('static', filename='ui/logo.png') }}" alt="Riddle-da-Fiddle"></div>
+
     <section id="screen-home" class="screen panel narrow">
       <label class="field">Your name
         <input id="name-input" maxlength="16" autocomplete="nickname" placeholder="e.g. Jack">

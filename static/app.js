@@ -187,6 +187,8 @@ function addLogLine(li) {
 function show(screen) {
   for (const name of ["home", "lobby", "game"]) $(`screen-${name}`).classList.toggle("hidden", name !== screen);
   $("leave-btn").classList.toggle("hidden", screen === "home");
+  $("home-logo").classList.toggle("hidden", screen !== "home");      // big logo on the home screen...
+  $("topbar-title").classList.toggle("hidden", screen === "home");    // ...small one in the top bar everywhere else
   $("chat-panel").classList.toggle("hidden", screen === "home");
   $("chat-panel").classList.toggle("narrow", screen === "lobby");
 }

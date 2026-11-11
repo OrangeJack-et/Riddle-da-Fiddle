@@ -395,3 +395,11 @@ input { cursor: text; }
 /* base colour behind everything (also the iPhone toolbar and overscroll areas) */
 html { background: var(--bg); }
 body { background: transparent; }   /* let the forest (behind the body) show through */
+
+/* logo: big on the home screen, small in the top bar */
+.home-logo { text-align: center; margin: 8px 0 -8px; }
+.home-logo img { width: 330px; max-width: 100%; height: auto; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.45)); }
+.topbar h1 { line-height: 0; }
+.logo-small { width: 182px; height: auto; display: block; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45)); }
+.topbar-buttons { margin-left: auto; }   /* stay on the right even when the title is hidden */
+@media (max-width: 520px) { .logo-small { width: 130px; } }
