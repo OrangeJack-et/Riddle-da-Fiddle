@@ -71,9 +71,51 @@ function minLegalQty(type, previous) {
 
 function guessText(g) { return `${g.quantity} × ${cap(g.card_type)}`; }
 
+// ------------------------------------------------------------ name colours & friend pop-ups
+
+// Fixed colours (and a pop-up for that player when they create/join a game) for the regulars.
+// Everyone else gets a colour picked from their name, so it's the same on every screen.
+const SPECIAL_NAMES = {
+  orangejacket:  { color: "#d35400", popup: "(again...)" },
+  bluejacket:    { color: "#1f5fbf", popup: "DYARI!!!" },
+  dyari:         { color: "#1f5fbf", popup: "BLUEJACKET!!!" },
+  wei:           { color: "#7b3fb5", popup: "hi sprinkles" },
+  crafteroflads: { color: "#c0262d", popup: "VIJAY!!!" },
+  shankar:       { color: "#111111", popup: "BLACKJACKET!!!" },
+  nako:          { color: "#23863b", popup: "NAKOOOOOOOO!!!" },
+  krishi:        { color: "#2a9ad6", popup: "FROSTWARD!!!" },   // icy blue
+};
+
+// "Jack 2" (duplicate) and "Jack (bot)" (seat taken over) still count as Jack
+function baseName(name) { return String(name ?? "").toLowerCase().replace(/ \(bot\)$/, "").replace(/ \d+$/, "").trim(); }
+
+function nameColor(name) {
+  const special = SPECIAL_NAMES[baseName(name)];
+  if (special) return special.color;
+  let h = 0;
+  for (const ch of baseName(name)) h = (h * 31 + ch.codePointAt(0)) % 360;
+  return `hsl(${h}, 62%, 32%)`;          // dark enough to read on the parchment
+}
+
+function nameSpan(name) { return `<span class="pname" style="color:${nameColor(name)}">${esc(name)}</span>`; }
+
+function friendPopup(name) {
+  const special = SPECIAL_NAMES[baseName(name)];
+  if (!special) return;
+  const el = $("name-popup");
+  el.innerHTML = `<div class="callout" style="--callout-shadow:#2b1608;color:${special.color}">${esc(special.popup)}</div>`;
+  el.classList.remove("hidden");
+  clearTimeout(friendPopup.timer);
+  friendPopup.timer = setTimeout(() => el.classList.add("hidden"), 3500);
+}
+
+let friendPopupAfterJoin = null;   // name typed into create/join: show its pop-up if the join works
+
 function send(event, data = {}) {
   socket.emit(event, data, (reply) => {
     if (reply && reply.ok && reply.token) saved.set("rdf-seat", { code: reply.code, token: reply.token });
+    if ((event === "create_room" || event === "join_room") && reply?.ok && friendPopupAfterJoin) friendPopup(friendPopupAfterJoin);
+    if (event === "create_room" || event === "join_room") friendPopupAfterJoin = null;
   });
 }
 
@@ -113,6 +155,7 @@ socket.on("chat", (msg) => {
   li.className = "chat";
   const who = document.createElement("b");
   who.textContent = `${msg.name}: `;
+  who.style.color = nameColor(msg.name);
   li.append(who, document.createTextNode(msg.text));
   addLogLine(li);
   if (msg.player !== state?.you) chatBubble(msg);
@@ -224,11 +267,22 @@ function describe(e) {
   }
 }
 
+// Wrap any player name in a log line with its colour (longest names first, whole words only).
+function colourNames(text) {
+  let html = esc(text);
+  const names = [...new Set((state?.seats ?? []).map((s) => s.name))].sort((a, b) => b.length - a.length);
+  for (const n of names) {
+    const safe = esc(n).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    html = html.replace(new RegExp("(^|[^\\w>])(" + safe + ")(?![\\w<])", "g"), (m, pre) => pre + nameSpan(n));
+  }
+  return html;
+}
+
 function logEvent(event) {
   const text = describe(event);
   if (!text) return;
   const li = document.createElement("li");
-  li.textContent = text;
+  li.innerHTML = colourNames(text);
   if (event.type === "game_won") {   // winner badge in front of the victory line
     li.classList.add("win-line");
     li.prepend(Object.assign(document.createElement("img"), { src: "/static/ui/winner-badge.png", alt: "", className: "badge-img small" }));
@@ -291,7 +345,7 @@ function renderLobby() {
   $("lobby-count").textContent = `(${state.seats.length}/${state.max_players})`;
   $("lobby-seats").innerHTML = state.seats.map((seat) => `
     <li>
-      <span>${esc(seat.name)} ${badges(seat)}</span>
+      <span>${nameSpan(seat.name)} ${badges(seat)}</span>
       ${state.is_host && seat.id !== state.you ? `<button class="btn ghost small" data-remove="${seat.id}">Remove</button>` : ""}
     </li>`).join("");
   $("host-controls").classList.toggle("hidden", !state.is_host);
@@ -318,7 +372,7 @@ function renderGame() {
       : "";
     return `
       <div class="player${isCurrent ? " current" : ""}${p.eliminated ? " out" : ""}${game.last_stand?.player === seat.id ? " last-stand" : ""}">
-        <div class="name">${esc(seat.name)}</div>
+        <div class="name"><span class="seat-name" style="--name-color:${nameColor(seat.name)}">${esc(seat.name)}</span></div>
         <div>${badges(seat)}</div>
         <div class="meta">${p.eliminated ? "Out" : `${p.card_count} card${p.card_count === 1 ? "" : "s"}`}${isCurrent ? (seat.id === state.you ? " · your turn" : " · their turn") : ""}${waitingJokers ? " · choosing jokers" : ""}</div>
         ${p.eliminated ? "" : `<div class="mini-backs" data-pid="${esc(seat.id)}">${Array.from({ length: Math.min(p.card_count, 20) },
@@ -454,7 +508,7 @@ function renderResults() {
     const cardsHtml = cards.map((c) => cardHtml(c, true,
       c.suit === "joker" ? "joker" : cardTypes(c).includes(type) ? "match" : "dim")).join("");
     return `<div class="result-row">
-      <div class="result-who"><b>${esc(seat.name)}</b> ${change}${jokerNote}</div>
+      <div class="result-who">${nameSpan(seat.name)} ${change}${jokerNote}</div>
       <div class="cards">${cardsHtml}</div>
     </div>`;
   }).join("");
@@ -607,13 +661,14 @@ function myName() {
   return name;
 }
 
-$("create-btn").onclick = () => { const name = myName(); if (name) send("create_room", { name }); };
+$("create-btn").onclick = () => { const name = myName(); if (name) send("create_room", { name }); friendPopupAfterJoin = name; };
 $("join-btn").onclick = () => {
   const name = myName();
   const code = $("code-input").value.trim().toUpperCase();
   if (!name) return;
   if (code.length !== 4) return toast("Enter the 4-letter code");
   send("join_room", { name, code });
+  friendPopupAfterJoin = name;
 };
 $("code-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("join-btn").click(); });
 $("name-input").addEventListener("keydown", (e) => { if (e.key === "Enter") ($("code-input").value ? $("join-btn") : $("create-btn")).click(); });

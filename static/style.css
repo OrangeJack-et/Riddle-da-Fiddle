@@ -482,3 +482,15 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 @media (min-width: 1400px) {
   #home-logo, #screen-home { zoom: 1.25; }
 }
+
+/* log without line numbers (3-digit numbers used to push lines off the left edge) */
+.log { list-style: none; padding-left: 0; }
+.log li.chat, .log li.callout-line { margin-left: 0; }
+
+/* player name colours */
+.pname { font-weight: normal; }
+.seat-name { border-bottom: 3px solid var(--name-color); padding-bottom: 1px; }
+
+/* friend pop-up (only shown to that player) */
+.name-popup { position: fixed; left: 50%; top: 18%; transform: translateX(-50%); z-index: 35; pointer-events: none; width: max-content; max-width: calc(100% - 32px); }
+.name-popup .callout { font-size: 2.6rem; }
