@@ -143,6 +143,41 @@ socket.on("disconnect", () => toast("Connection lost, reconnecting…"));
 
 // ------------------------------------------------------------ log
 
+// ------------------------------------------------------------ callouts (big-moment banners)
+
+// For a round result: [{ text, tone }] most important first. forLog = name everyone (no "YOU").
+function roundCallouts(r, forLog = false) {
+  const out = [];
+  const isMe = (id) => !forLog && id === state.you;
+  const knockedOut = (id) => r.card_counts[id] === 0;
+  if (r.kind === "fiddle" && knockedOut(r.loser)) {
+    if (r.loser === r.guesser) out.push({ tone: "red", text: isMe(r.loser) ? "YOU FIDDLED YOUR LAST FIDDLE!" : `${nameOf(r.loser)} fiddled their last fiddle!` });
+    else out.push({ tone: "red", text: isMe(r.loser) ? "YOU FIDDLED TOO CLOSE TO THE SUN!" : `${nameOf(r.loser)} fiddled too close to the sun!` });
+  }
+  if (r.kind === "riddle" && !r.correct && knockedOut(r.caller)) {
+    out.push({ tone: "red", text: isMe(r.caller) ? "YOU AIN'T NO SHERLOCK!" : `${nameOf(r.caller)} ain't no Sherlock!` });
+  }
+  if (r.kind === "riddle" && r.correct) out.push({ tone: "gold", text: "RIDDLE-DA-FIDDLE!" });
+  if (r.kind === "riddle" && r.at_cap) out.push({ tone: "gold", text: "MAXED OUT!" });
+  if (r.kind === "fiddle" && Math.abs(r.count - r.guess.quantity) === 1) out.push({ tone: "gold", text: "SO CLOSE!" });
+  if (!forLog && r.card_counts[state.you] === 1 && r.card_counts_before[state.you] > 1) out.push({ tone: "red", text: "HANGING BY A STRING!" });
+  return out;
+}
+
+// For the end of the game.
+function winCallouts(game) {
+  const winner = game.players.find((p) => p.id === game.winner);
+  const out = [{ tone: "gold", text: "LAST FIDDLER STANDING!" }];
+  if (winner && winner.card_count === 1) out.push({ tone: "gold", text: "WON BY A STRING!" });
+  if (game.winner_flawless) out.push({ tone: "gold", text: "PERFECT PITCH!" });
+  return out;
+}
+
+function calloutHtml(list) {
+  return list.length ? `<div class="callouts">${list.map((c, i) =>
+    `<div class="callout ${c.tone}${i ? " small" : ""}">${esc(c.text)}</div>`).join("")}</div>` : "";
+}
+
 function describe(e) {
   switch (e.type) {
     case "round_started": return `Round ${e.round}: ${nameOf(e.starting_player)} starts.`;
@@ -177,6 +212,16 @@ function logEvent(event) {
     li.prepend(Object.assign(document.createElement("img"), { src: "/static/ui/winner-badge.png", alt: "", className: "badge-img small" }));
   }
   addLogLine(li);
+  let extra = [];
+  if (event.type === "round_result") extra = roundCallouts(event, true);
+  if (event.type === "guess_made" && state?.game && event.quantity === state.game.cards_in_play) extra = [{ tone: "gold", text: "ALL IN!" }];
+  if (event.type === "game_won" && !event.early && state?.game) extra = winCallouts(state.game);
+  for (const c of extra) {
+    const line = document.createElement("li");
+    line.className = `callout-line ${c.tone}`;
+    line.textContent = c.text;
+    addLogLine(line);
+  }
 }
 
 function addLogLine(li) {
@@ -263,6 +308,7 @@ function renderGame() {
   $("round-label").textContent = `Round ${game.round} · ${game.cards_in_play} cards in play`;
   const g = game.current_guess;
   $("current-guess").textContent = g ? guessText(g) : "No guess yet";
+  $("table-callout").classList.toggle("hidden", !(g && g.quantity === game.cards_in_play && game.phase !== "game_over"));
   let status = "";
   if (game.phase === "guessing") {
     status = game.your_turn ? "Your turn!" : `Waiting for ${nameOf(game.current_player)}…`;
@@ -313,7 +359,8 @@ function renderGame() {
   const over = game.phase === "game_over";
   $("game-over").classList.toggle("hidden", !over);
   if (over) {
-    $("game-over").innerHTML = `<img class="badge-img" src="/static/ui/winner-badge.png" alt=""><div>${esc(nameOf(game.winner))} wins!</div>` +
+    $("game-over").innerHTML = calloutHtml(winCallouts(game)) +
+      `<img class="badge-img" src="/static/ui/winner-badge.png" alt=""><div>${esc(nameOf(game.winner))} wins!</div>` +
       (state.is_host ? `<div><button class="btn primary" id="lobby-btn">Back to lobby</button></div>` : `<div class="muted">Waiting for the host…</div>`);
   }
   $("host-game-controls").classList.toggle("hidden", !state.is_host || over);
@@ -388,6 +435,7 @@ function renderResults() {
 
   $("results-box").innerHTML = `
     <div class="muted">Round ${r.round} results</div>
+    ${calloutHtml(roundCallouts(r))}
     <h2 id="results-title" class="results-headline">${headline}</h2>
     <p class="results-verdict">${verdict}</p>
     <p class="muted results-key"><span class="key match"></span> counts as ${esc(type)}

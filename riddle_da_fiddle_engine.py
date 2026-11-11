@@ -90,6 +90,7 @@ class Player:
         self.name = name if name is not None else str(player_id)
         self.card_count = STARTING_CARDS   # also your lives
         self.hand = []
+        self.lost_a_card = False           # for the "Perfect Pitch" win callout
 
     @property
     def eliminated(self):
@@ -324,6 +325,7 @@ class Game:
         else:                               # the guess was false: guesser loses
             loser, winner = guesser, fiddler
         loser.card_count -= 1
+        loser.lost_a_card = True
 
         result = {
             "kind": "fiddle",
@@ -359,6 +361,8 @@ class Game:
         else:
             change = 1
         riddler.card_count += change
+        if change < 0:
+            riddler.lost_a_card = True
 
         result = {
             "kind": "riddle",
@@ -454,4 +458,6 @@ class Game:
             ),
             "last_round": self.last_round,
             "winner": self.winner_id,
+            # win callouts: did the winner never lose a card? / win on their last card?
+            "winner_flawless": (not self.get_player(self.winner_id).lost_a_card) if self.winner_id else False,
         }

@@ -435,3 +435,22 @@ body { background: transparent; }   /* let the forest (behind the body) show thr
 .badge-img { width: 96px; height: auto; image-rendering: pixelated; display: block; margin: 0 auto 6px; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45)); }
 .badge-img.small { width: 32px; display: inline-block; vertical-align: middle; margin: 0 6px 0 0; filter: none; }
 .log li.win-line { font-weight: 700; }
+
+/* big-moment callouts: chunky outlined pixel text, red for bad news, gold for good */
+.callouts { text-align: center; margin: 6px 0 10px; }
+.callout {
+  font-size: 2.1rem; line-height: 1.05; color: #fff4e2; text-align: center; letter-spacing: 0.04em;
+  text-shadow: 2px 0 #2b1608, -2px 0 #2b1608, 0 2px #2b1608, 0 -2px #2b1608,
+               2px 2px #2b1608, -2px 2px #2b1608, 2px -2px #2b1608, -2px -2px #2b1608, 4px 4px var(--callout-shadow);
+  animation: callout-pop 0.45s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+.callout.gold { --callout-shadow: #c45a10; color: #ffe9a8; }
+.callout.red { --callout-shadow: #8e1e1e; color: #ffd9d2; }
+.callout.small { font-size: 1.3rem; margin-top: 4px; animation-delay: 0.15s; }
+@keyframes callout-pop { from { transform: scale(0.4) rotate(-4deg); opacity: 0; } to { transform: none; opacity: 1; } }
+#table-callout { font-size: 1.5rem; margin: -2px 0 4px; }
+.log li.callout-line { list-style: none; margin-left: -20px; font-size: 1.05em; }
+.log li.callout-line.gold { color: #a0600a; }
+.log li.callout-line.red { color: #b3261e; }
+@media (prefers-reduced-motion: reduce) { .callout { animation: none; } }
+@media (max-width: 520px) { .callout { font-size: 1.6rem; } .callout.small { font-size: 1.1rem; } }
